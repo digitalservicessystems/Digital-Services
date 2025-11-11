@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salesforce Integrated Home Page</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .dashboard-section {
+            display: none;
+        }
+        .dashboard-section.active {
+            display: block;
+        }
+        .nav-tabs a {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 3px solid transparent;
+        }
+        .nav-tabs a.active {
+            color: #1e40af;
+            border-bottom-color: #1e40af;
+            font-weight: 600;
+        }
+        .nav-tabs a:hover:not(.active) {
+            background-color: #e5e7eb;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .status-box.operational {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .status-box.degraded {
+            background-color: #fffbeb;
+            color: #b45309;
+        }
+        .dashboard-table th, .dashboard-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .dashboard-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #334155;
+        }
+        .dashboard-table tr:last-child td {
+            border-bottom: none;
+        }
+        .dashboard-table tbody tr:hover {
+            background-color: #f0f4f8;
+        }
+        .chart-placeholder {
+            background-color: #e2e8f0;
+            border-radius: 0.5rem;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-weight: 500;
+            border: 1px dashed #94a3b8;
+        }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-7xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
+        <!-- Dashboard Header -->
+        <header class="bg-gray-800 text-white p-6 rounded-t-lg">
+            <h1 class="text-3xl font-bold mb-1">Enterprise Digital Services Hub</h1>
+            <p class="text-lg">Welcome to your central portal for all Digital Services requests and development information</p>
+        </header>
+
+        <!-- Tabbed Navigation -->
+        <nav class="bg-white border-b border-gray-200">
+            <div class="nav-tabs flex flex-wrap justify-center sm:justify-start gap-1">
+                <a class="active text-blue-700" data-tab="hub-overview"><i class="fas fa-home"></i> Hub Overview</a>
+                <a class="text-gray-600" data-tab="intake-center"><i class="fas fa-inbox"></i> New Intake Center</a>
+                <a class="text-gray-600" data-tab="my-requests"><i class="fas fa-list-check"></i> Submitted Requests</a>
+                <a class="text-gray-600" data-tab="product/feature-backlog"><i class="fas fa-list-ol"></i> Product/Feature Backlog</a>
+                <a class="text-gray-600" data-tab="roadmaps"><i class="fas fa-route"></i> Roadmaps</a>
+                <a class="text-gray-600" data-tab="change-triage"><i class="fas fa-funnel-dollar"></i> Intake & Triage Management</a>
+                <a class="text-gray-600" data-tab="governance"><i class="fas fa-handshake"></i> Governance</a>
+                <a class="text-gray-600" data-tab="devops"><i class="fas fa-cogs"></i> Agile DevOps</a>
+                <a class="text-gray-600" data-tab="support"><i class="fas fa-book"></i> Support & Resources</a>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="p-6">
+            <!-- Hub Overview Dashboard Widget -->
+            <section id="hub-overview" class="dashboard-section active">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Hub Overview</h2>
+                <p class="text-gray-700 mb-6">
+                    This hub provides a consolidated view of the entire governance process, allows users to track their change requests through the full lifecycle, and offers visibility into upcoming planned initiatives.
+                    Use the tabs above to dive deeper into each specific area.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="card bg-blue-50 p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Total Submitted Requests</p>
+                        <p class="text-2xl font-bold text-blue-800">12</p>
+                    </div>
+                    <div class="card bg-yellow-50 p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Requests In Intake/Triage</p>
+                        <p class="text-2xl font-bold text-yellow-800">15</p>
+                    </div>
+                    <div class="card bg-purple-50 p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Requests Awaiting Governance</p>
+                        <p class="text-2xl font-bold text-purple-800">3</p>
+                    </div>
+                    <div class="card bg-red-50 p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Active High-Priority Bugs</p>
+                        <p class="text-2xl font-bold text-red-800">3</p>
+                    </div>
+                </div>
+                <div class="card mt-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Overall Request Lifecycle</h3>
+                    <div class="chart-placeholder">Flow Chart (Submission -> Intake -> Triage -> Governance -> Dev -> Release)</div>
+                </div>
+            </section>
+
+            <!-- Tab 1: My Submitted Requests -->
+            <section id="my-requests" class="dashboard-section">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Submitted Requests</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="card bg-blue-50 p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Total Submitted</p>
+                        <p class="text-2xl font-bold text-blue-800">12</p>
+                    </div>
+                    <div class="card bg-yellow-50 p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">In Progress</p>
+                        <p class="text-2xl font-bold text-yellow-800">5</p>
+                    </div>
+                    <div class="card bg-green-50 p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Resolved (Last 30 Days)</p>
+                        <p class="text-2xl font-bold text-green-800">7</p>
+                    </div>
+                </div>
+                <div class="card overflow-x-auto">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Requests Submitted by Me</h3>
+                    <table class="min-w-full dashboard-table">
+                        <thead>
+                            <tr>
+                                <th class="w-1/12">ID</th>
+                                <th class="w-4/12">Title / Summary</th>
+                                <th class="w-2/12">Type</th>
+                                <th class="w-2/12">Status</th>
+                                <th class="w-2/12">Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CR001</td>
+                                <td>Automate Sales Forecasting</td>
+                                <td>Change Request</td>
+                                <td class="text-yellow-600 font-medium">In Triage</td>
+                                <td>2025-07-28</td>
+                            </tr>
+                            <tr>
+                                <td>SR001</td>
+                                <td>New Sales Performance Dashboard</td>
+                                <td>Service Request</td>
+                                <td class="text-blue-600 font-medium">In Progress</td>
+                                <td>2025-07-30</td>
+                            </tr>
+                            <tr>
+                                <td>INC002</td>
+                                <td>Customer data sync failure</td>
+                                <td>Incident</td>
+                                <td class="text-blue-600 font-medium">Assigned</td>
+                                <td>2025-07-29</td>
+                            </tr>
+                            <tr>
+                                <td>SR002</td>
+                                <td>Access to Marketing Cloud</td>
+                                <td>Service Request</td>
+                                <td class="text-green-600 font-medium">Resolved</td>
+                                <td>2025-07-25</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Tab 2: Change & Triage Management -->
+            <section id="change-triage" class="dashboard-section">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Intake & Triage Management</h2>
+                <p class="text-gray-700 mb-6">A summary of the current change request pipeline from intake to prioritization.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Total Requests In Intake</p>
+                        <p class="text-2xl font-bold text-blue-800">15</p>
+                    </div>
+                    <div class="card p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Avg. Time in Triage</p>
+                        <p class="text-2xl font-bold text-yellow-800">4.5 Days</p>
+                    </div>
+                    <div class="card p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Ready for Development</p>
+                        <p class="text-2xl font-bold text-green-800">7</p>
+                    </div>
+                </div>
+                <div class="card mt-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Requests by Current Stage</h3>
+                    <div class="chart-placeholder">Pie Chart (Intake, Triage, Pre-Dev Backlog, Moved to Dev, Rejected)</div>
+                </div>
+                <div class="card mt-6 overflow-x-auto">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Top 5 Requests in Triage</h3>
+                    <table class="min-w-full dashboard-table">
+                        <thead>
+                            <tr>
+                                <th class="w-1/12">ID</th>
+                                <th class="w-4/12">Item Name</th>
+                                <th class="w-2/12">Priority</th>
+                                <th class="w-3/12">Owner</th>
+                                <th class="w-2/12">Days in Stage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CR001</td>
+                                <td>Automate Sales Forecasting</td>
+                                <td class="text-red-600 font-medium">High</td>
+                                <td>Sarah L.</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>CR002</td>
+                                <td>Streamline Lead Assignment Workflow</td>
+                                <td class="text-yellow-600 font-medium">Medium</td>
+                                <td>John D.</td>
+                                <td>7</td>
+                            </tr>
+                            <tr>
+                                <td>CR003</td>
+                                <td>Add Customer Segment Field</td>
+                                <td class="text-green-600 font-medium">Low</td>
+                                <td>Jane T.</td>
+                                <td>6</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Tab 3: Governance -->
+            <section id="governance" class="dashboard-section">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Strategic Governance</h2>
+                <p class="text-gray-700 mb-6">Oversight and status of key strategic initiatives approved by the steering committee.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Total Strategic Initiatives</p>
+                        <p class="text-2xl font-bold text-purple-800">8</p>
+                    </div>
+                    <div class="card p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Awaiting Committee Review</p>
+                        <p class="text-2xl font-bold text-yellow-800">3</p>
+                    </div>
+                </div>
+                <div class="card mt-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Strategic Initiatives by Status</h3>
+                    <div class="chart-placeholder">Donut Chart (Submitted, Under Review, Approved, Rejected)</div>
+                </div>
+                <div class="card mt-6 overflow-x-auto">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Upcoming Governance Reviews</h3>
+                    <table class="min-w-full dashboard-table">
+                        <thead>
+                            <tr>
+                                <th class="w-1/12">ID</th>
+                                <th class="w-4/12">Initiative</th>
+                                <th class="w-2/12">Status</th>
+                                <th class="w-2/12">Next Meeting</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CR001</td>
+                                <td>Automate Sales Forecasting</td>
+                                <td class="text-yellow-600 font-medium">Under Review</td>
+                                <td>2025-08-01</td>
+                            </tr>
+                            <tr>
+                                <td>CR009</td>
+                                <td>New Product Line Integration</td>
+                                <td class="text-gray-600 font-medium">Submitted</td>
+                                <td>2025-08-01</td>
+                            </tr>
+                            <tr>
+                                <td>CR010</td>
+                                <td>Global Data Compliance Module</td>
+                                <td class="text-green-600 font-medium">Approved</td>
+                                <td>N/A</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Tab 4: Agile DevOps -->
+            <section id="devops" class="dashboard-section">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Agile DevOps Status</h2>
+                <p class="text-gray-700 mb-6">A high-level view of our development and operations pipeline.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Active High-Priority Bugs</p>
+                        <p class="text-2xl font-bold text-red-800">3</p>
+                    </div>
+                    <div class="card p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Build Success Rate</p>
+                        <p class="text-2xl font-bold text-green-800">98%</p>
+                    </div>
+                    <div class="card p-4 shadow-sm">
+                        <p class="text-sm text-gray-600">Latest Production Release</p>
+                        <p class="text-2xl font-bold text-gray-800">v1.2.0</p>
+                    </div>
+                </div>
+                <div class="card mt-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Open Items by Type</h3>
+                    <div class="chart-placeholder">Bar Chart (Bugs, Features, Tech Debt)</div>
+                </div>
+            </section>
+
+            <!-- Tab 5: Support & Resources -->
+            <section id="support" class="dashboard-section">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Support & Resources</h2>
+                <div class="card">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Key Resources</h3>
+                    <ul class="space-y-4">
+                        <li>
+                            <a href="#" class="text-blue-600 hover:underline flex items-center gap-2 font-medium">
+                                <i class="fas fa-file-alt"></i> DevOps Knowledge Base & FAQ
+                            </a>
+                            <p class="text-sm text-gray-600 ml-6">Find answers to common questions and learn more about our processes.</p>
+                        </li>
+                        <li>
+                            <a href="#" class="text-blue-600 hover:underline flex items-center gap-2 font-medium">
+                                <i class="fas fa-file-invoice"></i> Submit a New Request or Report an Incident
+                            </a>
+                            <p class="text-sm text-gray-600 ml-6">Use this form to propose new features, enhancements, service requests, or report system issues.</p>
+                        </li>
+                        <li>
+                            <a href="#" class="text-blue-600 hover:underline flex items-center gap-2 font-medium">
+                                <i class="fas fa-question-circle"></i> Contact the Support Desk
+                            </a>
+                            <p class="text-sm text-gray-600 ml-6">For urgent issues or immediate assistance, contact our support team.</p>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.nav-tabs a');
+            const sections = document.querySelectorAll('.dashboard-section');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (event) => {
+                    event.preventDefault();
+
+                    // Remove active class from all tabs and sections
+                    tabs.forEach(t => t.classList.remove('active', 'text-blue-700'));
+                    tabs.forEach(t => t.classList.add('text-gray-600'));
+                    sections.forEach(s => s.classList.remove('active'));
+
+                    // Add active class to the clicked tab
+                    tab.classList.add('active', 'text-blue-700');
+                    tab.classList.remove('text-gray-600');
+
+                    // Show the corresponding section
+                    const targetId = tab.getAttribute('data-tab');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
