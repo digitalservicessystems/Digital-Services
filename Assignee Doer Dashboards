@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EDSPPM • Digital Services Hub (Interactive)</title>
+  <style>
+    :root{
+      --bg:#f6f8fc; --panel:#ffffff; --text:#0b1220; --muted:#55637a;
+      --border:rgba(15,23,42,.12); --shadow:0 14px 34px rgba(15,23,42,.12);
+      --brand1:#6d28d9; --brand2:#0891b2;
+      --ok:#16a34a; --warn:#d97706; --bad:#dc2626;
+      --r:18px; --pad:18px;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:var(--sans); color:var(--text);
+      background:
+        radial-gradient(900px 480px at 15% 6%, rgba(109,40,217,.12), transparent 60%),
+        radial-gradient(800px 420px at 88% 18%, rgba(8,145,178,.10), transparent 55%),
+        radial-gradient(700px 420px at 50% 105%, rgba(22,163,74,.08), transparent 60%),
+        var(--bg);
+    }
+    a{color:inherit; text-decoration:none}
+    hr{border:0;border-top:1px solid var(--border);margin:14px 0}
+
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      display:flex; align-items:center; gap:12px;
+      padding:14px 16px;
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,.75);
+      border-bottom:1px solid var(--border);
+    }
+    .brand{display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:.2px;}
+    .logo{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,var(--brand1),var(--brand2));box-shadow:0 14px 32px rgba(109,40,217,.18);}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--border);background:rgba(255,255,255,.9);border-radius:999px;color:var(--muted);font-size:12px}
+    .spacer{flex:1}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:9px 12px;border-radius:12px;border:1px solid var(--border);
+      background:rgba(255,255,255,.95); color:var(--text); cursor:pointer;
+      transition:transform .08s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+      box-shadow:0 8px 20px rgba(15,23,42,.06);
+    }
+    .btn:hover{background:#fff;border-color:rgba(15,23,42,.18);box-shadow:0 10px 26px rgba(15,23,42,.10)}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{background:linear-gradient(135deg, rgba(109,40,217,.95), rgba(8,145,178,.92)); color:#fff; border-color:rgba(255,255,255,.35); box-shadow:0 14px 28px rgba(109,40,217,.18)}
+
+    .wrap{max-width:1280px; margin:0 auto; padding:18px}
+    .hero{padding:18px 0 6px 0}
+    .hero h1{margin:0 0 8px 0; font-size:30px; letter-spacing:-.02em}
+    .hero p{margin:0; color:var(--muted); line-height:1.6}
+
+    .tabs{display:flex; gap:10px; flex-wrap:wrap; margin:12px 0 0 0}
+    .tab{
+      padding:8px 10px; border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.92);
+      color:var(--muted); font-size:13px; cursor:pointer;
+      box-shadow:0 8px 18px rgba(15,23,42,.06);
+      user-select:none;
+    }
+    .tab.active{background:rgba(109,40,217,.10); border-color:rgba(109,40,217,.25); color:var(--text)}
+
+    .grid{display:grid; gap:14px}
+    .grid.c2{grid-template-columns: 1.2fr .8fr}
+    .grid.c3{grid-template-columns: 1fr 1fr 1fr}
+    .grid.c4{grid-template-columns: 1fr 1fr 1fr 1fr}
+    @media (max-width:1100px){ .grid.c2,.grid.c3,.grid.c4{grid-template-columns:1fr} }
+
+    .card{border:1px solid var(--border); background:var(--panel); border-radius: var(--r); box-shadow: var(--shadow); padding: var(--pad);}
+    .card.compact{padding:14px; border-radius:16px}
+    .card h2{margin:0 0 6px 0; font-size:18px}
+    .card p{margin:0 0 10px 0; color:var(--muted); line-height:1.5}
+
+    .kpi .label{color:var(--muted); font-size:12px; letter-spacing:.08em; text-transform:uppercase}
+    .kpi .big{font-size:28px; font-weight:900; letter-spacing:-.02em}
+
+    .delta{margin-top:6px; display:inline-flex; gap:6px; font-size:12px; padding:6px 9px; border-radius:999px; border:1px solid var(--border); background:rgba(2,6,23,.02);}
+    .delta.ok{color:#0f5132;border-color:rgba(22,163,74,.22);background:rgba(22,163,74,.08)}
+    .delta.warn{color:#7c2d12;border-color:rgba(217,119,6,.22);background:rgba(217,119,6,.08)}
+    .delta.bad{color:#7f1d1d;border-color:rgba(220,38,38,.22);background:rgba(220,38,38,.08)}
+
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;font-size:12px;border:1px solid var(--border);background:rgba(2,6,23,.02)}
+    .badge.ok{border-color:rgba(22,163,74,.24);background:rgba(22,163,74,.10);color:#0f5132}
+    .badge.warn{border-color:rgba(217,119,6,.24);background:rgba(217,119,6,.10);color:#7c2d12}
+    .badge.bad{border-color:rgba(220,38,38,.24);background:rgba(220,38,38,.10);color:#7f1d1d}
+    .badge.info{border-color:rgba(8,145,178,.24);background:rgba(8,145,178,.10);color:#0b4b5a}
+
+    .table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border:1px solid var(--border); border-radius:16px; background:#fff;}
+    .table th,.table td{padding:10px 12px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:top}
+    .table th{color:var(--muted); font-weight:800; text-align:left; background:rgba(2,6,23,.02)}
+    .table tr:last-child td{border-bottom:0}
+
+    .miniChart{height:240px; border-radius:16px; border:1px solid var(--border); background:rgba(2,6,23,.01); padding:14px; display:flex; flex-direction:column; gap:10px;}
+    .barRow{display:flex; align-items:center; gap:10px}
+    .barLbl{width:140px; color:var(--muted); font-size:12px}
+    .bar{flex:1; height:10px; border-radius:999px; background:rgba(2,6,23,.08); overflow:hidden}
+    .bar > i{display:block; height:100%; width:50%; background:linear-gradient(90deg, rgba(109,40,217,.95), rgba(8,145,178,.92))}
+    .barVal{width:56px; text-align:right; font-family:var(--mono); font-size:12px; color:rgba(15,23,42,.88)}
+
+    .cardsGrid{display:grid; gap:14px; grid-template-columns:repeat(2, minmax(0,1fr))}
+    @media (max-width:900px){ .cardsGrid{grid-template-columns:1fr} }
+
+    .callout{display:flex; gap:12px; padding:12px 14px; border-radius:16px; border:1px dashed rgba(15,23,42,.18); background:rgba(255,255,255,.85);}
+    .ico{width:30px; height:30px; border-radius:12px; display:grid; place-items:center; border:1px solid var(--border); background:rgba(2,6,23,.02)}
+    .code{font-family:var(--mono); font-size:12px; padding:2px 6px; border:1px solid var(--border); border-radius:10px; background:rgba(2,6,23,.02)}
+
+    .page{display:none}
+    .page.active{display:block}
+
+    .subtabs{display:flex; gap:10px; flex-wrap:wrap; margin:0 0 12px 0}
+    .subtab{padding:7px 10px; border-radius:999px; border:1px solid var(--border); background:#fff; color:var(--muted); font-size:12px; cursor:pointer; box-shadow:0 8px 18px rgba(15,23,42,.05)}
+    .subtab.active{background:rgba(8,145,178,.10); border-color:rgba(8,145,178,.22); color:var(--text)}
+    .footer{color:var(--muted); font-size:12px; margin-top:12px}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand"><div class="logo"></div>Digital Services Hub</div>
+    <div class="pill">Enterprise Digital Services Portfolio &amp; Program Management (EDSPPM)</div>
+    <div class="spacer"></div>
+    <a class="btn" href="#" onclick="switchPage('hub');return false;">Hub</a>
+    <a class="btn primary" href="#" onclick="switchPage('pp');setSub('pp','doer');return false;">Go to My Work</a>
+  </div>
+
+  <div class="wrap">
+    <div class="hero">
+      <h1>EDSPPM WorkApps • Doer Dashboards First</h1>
+      <p>Each WorkApp has its own “Doer Dashboard” so assigned work is accurate within that WorkApp’s scope.</p>
+      <div class="tabs">
+        <div class="tab active" data-tab="hub" onclick="switchPage('hub')">Hub</div>
+        <div class="tab" data-tab="pp" onclick="switchPage('pp');setSub('pp','doer')">Product &amp; Portfolio</div>
+        <div class="tab" data-tab="dd" onclick="switchPage('dd');setSub('dd','doer')">DevOps &amp; Delivery</div>
+        <div class="tab" data-tab="rv" onclick="switchPage('rv');setSub('rv','doer')">Run &amp; Vendor Ops</div>
+        <div class="tab" data-tab="gr" onclick="switchPage('gr');setSub('gr','doer')">Governance &amp; Reporting</div>
+      </div>
+    </div>
+
+    <!-- HUB -->
+    <section class="page active" id="page-hub">
+      <div class="grid c2">
+        <div class="card">
+          <h2>Start Here</h2>
+          <p>If you work items, open the Doer Dashboard inside the WorkApp where the work lives.</p>
+          <div class="cardsGrid">
+            <a class="card" href="#" onclick="switchPage('pp');setSub('pp','doer');return false;">
+              <h2>Product &amp; Portfolio • Doer</h2>
+              <p>Epics, Features, Stories, Requirements.</p>
+              <span class="badge info">My Assigned Work</span>
+            </a>
+            <a class="card" href="#" onclick="switchPage('dd');setSub('dd','doer');return false;">
+              <h2>DevOps &amp; Delivery • Doer</h2>
+              <p>Sprints, Bugs, QA/UAT, Release tasks.</p>
+              <span class="badge info">My Sprint + Tests</span>
+            </a>
+            <a class="card" href="#" onclick="switchPage('rv');setSub('rv','doer');return false;">
+              <h2>Run &amp; Vendor Ops • Doer</h2>
+              <p>SRs, Issues/Incidents, Renewals.</p>
+              <span class="badge info">My SRs + SLAs</span>
+            </a>
+            <a class="card" href="#" onclick="switchPage('gr');setSub('gr','doer');return false;">
+              <h2>Governance • Doer</h2>
+              <p>Approvals, reporting actions, decisions.</p>
+              <span class="badge info">My Approvals</span>
+            </a>
+          </div>
+          <div class="callout" style="margin-top:14px">
+            <div class="ico">✅</div>
+            <div>
+              <b>Publishing tip</b>
+              <div style="color:var(--muted);line-height:1.45">
+                Put <b>Doer Dashboard</b> as page #1 in each WorkApp role. Users land on “what’s on me” instantly.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Enterprise Snapshot (demo)</h2>
+          <div class="miniChart">
+            <div class="barRow"><div class="barLbl">My Open (PP)</div><div class="bar"><i style="width:62%"></i></div><div class="barVal">18</div></div>
+            <div class="barRow"><div class="barLbl">My Open (DevOps)</div><div class="bar"><i style="width:54%"></i></div><div class="barVal">12</div></div>
+            <div class="barRow"><div class="barLbl">My Open (Run)</div><div class="bar"><i style="width:40%"></i></div><div class="barVal">9</div></div>
+            <div class="barRow"><div class="barLbl">My Open (Gov)</div><div class="bar"><i style="width:22%"></i></div><div class="barVal">3</div></div>
+          </div>
+          <p style="margin-top:10px;color:var(--muted)">In Smartsheet, you’ll build these as separate Doer Dashboards per WorkApp (more reliable than one global view).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCT & PORTFOLIO -->
+    <section class="page" id="page-pp">
+      <div class="subtabs">
+        <div class="subtab active" data-sub="pp-doer" onclick="setSub('pp','doer')">Doer Dashboard</div>
+        <div class="subtab" data-sub="pp-overview" onclick="setSub('pp','overview')">Overview</div>
+        <div class="subtab" data-sub="pp-roadmap" onclick="setSub('pp','roadmap')">Roadmaps</div>
+        <div class="subtab" data-sub="pp-backlog" onclick="setSub('pp','backlog')">Backlog</div>
+      </div>
+
+      <div class="subpage" id="pp-doer">
+        <div class="grid c4">
+          <div class="card compact kpi"><div class="label">My Open (PP)</div><div class="big">18</div><div class="delta ok">▲ 2 this week</div></div>
+          <div class="card compact kpi"><div class="label">Due soon (7 days)</div><div class="big">6</div><div class="delta warn">review today</div></div>
+          <div class="card compact kpi"><div class="label">Waiting on me</div><div class="big">4</div><div class="delta warn">needs action</div></div>
+          <div class="card compact kpi"><div class="label">Blocked / At risk</div><div class="big">2</div><div class="delta bad">past due</div></div>
+        </div>
+
+        <div class="grid c2" style="margin-top:14px">
+          <div class="card">
+            <h2>My Assigned Work (Open)</h2>
+            <table class="table">
+              <thead><tr><th>ID</th><th>Work</th><th>Type</th><th>Status</th><th>Due</th></tr></thead>
+              <tbody>
+                <tr><td>REQ-122</td><td>Define global SLA breach criteria</td><td>Requirement</td><td><span class="badge warn">Needs Info</span></td><td>Feb 6</td></tr>
+                <tr><td>FTR-310</td><td>OUS dashboard filters</td><td>Feature</td><td><span class="badge info">Under Review</span></td><td>Feb 8</td></tr>
+                <tr><td>US-901</td><td>Standardize disposition picklists</td><td>User Story</td><td><span class="badge ok">Ready</span></td><td>Feb 10</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h2>Quick Actions</h2>
+            <p>Replace these with your Smartsheet form/dashboard links.</p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap">
+              <a class="btn primary" href="#" onclick="alert('Link: Requirements Update Form');return false;">Update Requirements</a>
+              <a class="btn" href="#" onclick="alert('Link: Add Update / Comment workflow');return false;">Add Update</a>
+              <a class="btn" href="#" onclick="alert('Link: New Feature/Story intake');return false;">Add Work Item</a>
+            </div>
+            <hr/>
+            <div class="callout">
+              <div class="ico">📌</div>
+              <div>
+                <b>WorkApp report scope</b>
+                <div style="color:var(--muted);line-height:1.45">
+                  Only include PP sheets (Epics/Features/Stories/Requirements) so “My Work” stays accurate.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid c2" style="margin-top:14px">
+          <div class="card">
+            <h2>Due Soon</h2>
+            <table class="table">
+              <thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Due</th></tr></thead>
+              <tbody>
+                <tr><td>REQ-122</td><td>Define global SLA breach criteria</td><td><span class="badge warn">Needs Info</span></td><td>Feb 6</td></tr>
+                <tr><td>FTR-310</td><td>OUS dashboard filters</td><td><span class="badge info">Under Review</span></td><td>Feb 8</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h2>Waiting on Me</h2>
+            <table class="table">
+              <thead><tr><th>ID</th><th>Title</th><th>Reason</th><th>Owner</th></tr></thead>
+              <tbody>
+                <tr><td>REQ-122</td><td>Define SLA criteria</td><td>Needs Info</td><td>You</td></tr>
+                <tr><td>EP-090</td><td>Finalize scope notes</td><td>Approval</td><td>You</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="subpage" id="pp-overview" style="display:none">
+        <div class="card"><h2>Overview</h2><p>Portfolio rollups, allocation, roadmap confidence, and at-risk epics.</p></div>
+      </div>
+      <div class="subpage" id="pp-roadmap" style="display:none">
+        <div class="card"><h2>Roadmaps</h2><p>Now / Next / Later views.</p></div>
+      </div>
+      <div class="subpage" id="pp-backlog" style="display:none">
+        <div class="card"><h2>Backlog</h2><p>Epics, Features, Stories and Requirements.</p></div>
+      </div>
+    </section>
+
+    <!-- DEVOPS & DELIVERY -->
+    <section class="page" id="page-dd">
+      <div class="subtabs">
+        <div class="subtab active" data-sub="dd-doer" onclick="setSub('dd','doer')">Doer Dashboard</div>
+        <div class="subtab" data-sub="dd-overview" onclick="setSub('dd','overview')">Overview</div>
+        <div class="subtab" data-sub="dd-sprints" onclick="setSub('dd','sprints')">Sprints</div>
+        <div class="subtab" data-sub="dd-qa" onclick="setSub('dd','qa')">QA / UAT</div>
+        <div class="subtab" data-sub="dd-release" onclick="setSub('dd','release')">Releases</div>
+      </div>
+
+      <div class="subpage" id="dd-doer">
+        <div class="grid c4">
+          <div class="card compact kpi"><div class="label">My Open (DevOps)</div><div class="big">12</div><div class="delta ok">Sprint 5</div></div>
+          <div class="card compact kpi"><div class="label">Due soon (7 days)</div><div class="big">5</div><div class="delta warn">focus</div></div>
+          <div class="card compact kpi"><div class="label">Waiting on me</div><div class="big">3</div><div class="delta warn">reviews/tests</div></div>
+          <div class="card compact kpi"><div class="label">Blocked / At risk</div><div class="big">1</div><div class="delta bad">blocked</div></div>
+        </div>
+
+        <div class="grid c2" style="margin-top:14px">
+          <div class="card">
+            <h2>My Assigned Work (Sprint / Bugs / Tests)</h2>
+            <table class="table">
+              <thead><tr><th>ID</th><th>Work</th><th>Type</th><th>Status</th><th>Due</th></tr></thead>
+              <tbody>
+                <tr><td>US-903</td><td>Dashboard filters for US/OUS</td><td>Story</td><td><span class="badge bad">Blocked</span></td><td>Feb 6</td></tr>
+                <tr><td>BUG-412</td><td>Lead conversion error</td><td>Bug</td><td><span class="badge warn">In progress</span></td><td>Feb 7</td></tr>
+                <tr><td>TR-88</td><td>Execute regression pack</td><td>Test Run</td><td><span class="badge info">Assigned</span></td><td>Feb 8</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h2>Quick Actions</h2>
+            <div style="display:flex; gap:10px; flex-wrap:wrap">
+              <a class="btn primary" href="#" onclick="alert('Link: Log Defect Form');return false;">Log Defect</a>
+              <a class="btn" href="#" onclick="alert('Link: Update Sprint Item');return false;">Update Sprint Work</a>
+              <a class="btn" href="#" onclick="alert('Link: Add Daily Standup Notes');return false;">Standup Notes</a>
+            </div>
+            <hr/>
+            <div class="miniChart">
+              <div class="barRow"><div class="barLbl">Sprint committed</div><div class="bar"><i style="width:82%"></i></div><div class="barVal">22</div></div>
+              <div class="barRow"><div class="barLbl">In progress</div><div class="bar"><i style="width:60%"></i></div><div class="barVal">13</div></div>
+              <div class="barRow"><div class="barLbl">Done</div><div class="bar"><i style="width:48%"></i></div><div class="barVal">9</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subpage" id="dd-overview" style="display:none"><div class="card"><h2>Overview</h2><p>Delivery health, sprint performance, release readiness.</p></div></div>
+      <div class="subpage" id="dd-sprints" style="display:none"><div class="card"><h2>Sprints</h2><p>Sprint board + standup + retro.</p></div></div>
+      <div class="subpage" id="dd-qa" style="display:none"><div class="card"><h2>QA / UAT</h2><p>Test runs, test cases, UAT signoffs.</p></div></div>
+      <div class="subpage" id="dd-release" style="display:none"><div class="card"><h2>Releases</h2><p>Release calendar + readiness checklist.</p></div></div>
+    </section>
+
+    <!-- RUN & VENDOR OPS -->
+    <section class="page" id="page-rv">
+      <div class="subtabs">
+        <div class="subtab active" data-sub="rv-doer" onclick="setSub('rv','doer')">Doer Dashboard</div>
+        <div class="subtab" data-sub="rv-overview" onclick="setSub('rv','overview')">Overview</div>
+        <div class="subtab" data-sub="rv-sr" onclick="setSub('rv','sr')">Service Requests</div>
+        <div class="subtab" data-sub="rv-inc" onclick="setSub('rv','inc')">Issues & Incidents</div>
+        <div class="subtab" data-sub="rv-vendor" onclick="setSub('rv','vendor')">Vendors</div>
+      </div>
+
+      <div class="subpage" id="rv-doer">
+        <div class="grid c4">
+          <div class="card compact kpi"><div class="label">My Open (Run)</div><div class="big">9</div><div class="delta warn">SLA focus</div></div>
+          <div class="card compact kpi"><div class="label">Due soon (7 days)</div><div class="big">4</div><div class="delta warn">near SLA</div></div>
+          <div class="card compact kpi"><div class="label">Waiting on me</div><div class="big">2</div><div class="delta warn">triage</div></div>
+          <div class="card compact kpi"><div class="label">Blocked / At risk</div><div class="big">1</div><div class="delta bad">past due</div></div>
+        </div>
+
+        <div class="grid c2" style="margin-top:14px">
+          <div class="card">
+            <h2>My Assigned Work (SR / Incidents / Renewals)</h2>
+            <table class="table">
+              <thead><tr><th>ID</th><th>Work</th><th>Type</th><th>Status</th><th>Due</th></tr></thead>
+              <tbody>
+                <tr><td>SR-1209</td><td>Report filter update (Global)</td><td>Service Request</td><td><span class="badge warn">In progress</span></td><td>Feb 5</td></tr>
+                <tr><td>INC-1042</td><td>Omni routing backlog</td><td>Incident</td><td><span class="badge bad">Mitigating</span></td><td>Today</td></tr>
+                <tr><td>REN-014</td><td>Smartsheet seat true-up</td><td>Renewal</td><td><span class="badge info">Assigned</span></td><td>Feb 20</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h2>Quick Actions</h2>
+            <div style="display:flex; gap:10px; flex-wrap:wrap">
+              <a class="btn primary" href="#" onclick="alert('Link: Submit Service Request Form');return false;">Submit SR</a>
+              <a class="btn" href="#" onclick="alert('Link: Log Incident Form');return false;">Log Incident</a>
+              <a class="btn" href="#" onclick="alert('Link: Vendor Update Form');return false;">Update Vendor/Renewal</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subpage" id="rv-overview" style="display:none"><div class="card"><h2>Overview</h2><p>Run health, SLAs, incident trends.</p></div></div>
+      <div class="subpage" id="rv-sr" style="display:none"><div class="card"><h2>Service Requests</h2><p>SR board.</p></div></div>
+      <div class="subpage" id="rv-inc" style="display:none"><div class="card"><h2>Issues & Incidents</h2><p>Issue log + incident board.</p></div></div>
+      <div class="subpage" id="rv-vendor" style="display:none"><div class="card"><h2>Vendors</h2><p>Vendors, contacts, licenses, validation.</p></div></div>
+    </section>
+
+    <!-- GOVERNANCE -->
+    <section class="page" id="page-gr">
+      <div class="subtabs">
+        <div class="subtab active" data-sub="gr-doer" onclick="setSub('gr','doer')">Doer Dashboard</div>
+        <div class="subtab" data-sub="gr-overview" onclick="setSub('gr','overview')">Overview</div>
+        <div class="subtab" data-sub="gr-approvals" onclick="setSub('gr','approvals')">Approvals</div>
+        <div class="subtab" data-sub="gr-reporting" onclick="setSub('gr','reporting')">Reporting Pack</div>
+        <div class="subtab" data-sub="gr-decisions" onclick="setSub('gr','decisions')">Decision Log</div>
+      </div>
+
+      <div class="subpage" id="gr-doer">
+        <div class="grid c4">
+          <div class="card compact kpi"><div class="label">My Open (Gov)</div><div class="big">3</div><div class="delta ok">weekly cadence</div></div>
+          <div class="card compact kpi"><div class="label">Due soon (7 days)</div><div class="big">2</div><div class="delta warn">prep</div></div>
+          <div class="card compact kpi"><div class="label">Waiting on me</div><div class="big">2</div><div class="delta warn">approvals</div></div>
+          <div class="card compact kpi"><div class="label">Blocked / At risk</div><div class="big">0</div><div class="delta ok">clean</div></div>
+        </div>
+
+        <div class="grid c2" style="margin-top:14px">
+          <div class="card">
+            <h2>My Assigned Work (Approvals / Reporting)</h2>
+            <table class="table">
+              <thead><tr><th>ID</th><th>Work</th><th>Status</th><th>Due</th></tr></thead>
+              <tbody>
+                <tr><td>STR-021</td><td>Prep SteerCo decision brief</td><td><span class="badge warn">Needs Review</span></td><td>Feb 8</td></tr>
+                <tr><td>RPT-011</td><td>Update monthly portfolio KPIs</td><td><span class="badge info">Assigned</span></td><td>Feb 9</td></tr>
+                <tr><td>DEC-203</td><td>Record decision + action items</td><td><span class="badge ok">Ready</span></td><td>Feb 9</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h2>Quick Actions</h2>
+            <div style="display:flex; gap:10px; flex-wrap:wrap">
+              <a class="btn primary" href="#" onclick="alert('Link: Add to SteerCo Agenda Form');return false;">Add to Agenda</a>
+              <a class="btn" href="#" onclick="alert('Link: Record Decision Form');return false;">Record Decision</a>
+              <a class="btn" href="#" onclick="alert('Link: Reporting Pack Update');return false;">Update KPIs</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subpage" id="gr-overview" style="display:none"><div class="card"><h2>Overview</h2><p>Decision pipeline and portfolio performance.</p></div></div>
+      <div class="subpage" id="gr-approvals" style="display:none"><div class="card"><h2>Approvals</h2><p>SteerCo approvals queue.</p></div></div>
+      <div class="subpage" id="gr-reporting" style="display:none"><div class="card"><h2>Reporting Pack</h2><p>Executive dashboards and exports.</p></div></div>
+      <div class="subpage" id="gr-decisions" style="display:none"><div class="card"><h2>Decision Log</h2><p>Decisions and action items.</p></div></div>
+    </section>
+
+    <div class="footer">
+      Build notes: Each Doer Dashboard is powered by WorkApp-scoped reports (My Open, Due Soon, Waiting on Me, Blocked/At Risk).
+    </div>
+  </div>
+
+  <script>
+    function switchPage(key){
+      document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+      document.getElementById("page-" + key).classList.add("active");
+      document.querySelector('.tab[data-tab="'+key+'"]').classList.add("active");
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    function setSub(app, sub){
+      // hide all subpages for this app
+      document.querySelectorAll("#page-"+app+" .subpage").forEach(el=>el.style.display="none");
+      // remove subtab active
+      document.querySelectorAll("#page-"+app+" .subtab").forEach(el=>el.classList.remove("active"));
+
+      const panel = document.getElementById(app+"-"+sub);
+      if(panel) panel.style.display="block";
+
+      const st = document.querySelector('#page-'+app+' .subtab[data-sub="'+app+'-'+sub+'"]');
+      if(st) st.classList.add("active");
+    }
+  </script>
+</body>
+</html>
