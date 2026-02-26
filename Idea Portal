@@ -1,0 +1,1149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>EDSPPM • Idea & Feedback Management (Interactive WorkApp)</title>
+  <style>
+    :root{
+      /* Light / enterprise theme */
+      --bg:#f6f8fc;
+      --panel:#ffffff;
+      --text:#0b1220;
+      --muted:#55637a;
+      --border:rgba(15,23,42,.12);
+      --shadow:0 14px 34px rgba(15,23,42,.12);
+
+      /* Brand */
+      --brand1:#6d28d9;
+      --brand2:#0891b2;
+
+      /* Status colors */
+      --ok:#16a34a;
+      --warn:#d97706;
+      --bad:#dc2626;
+
+      --r:18px;
+      --pad:18px;
+
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:var(--sans); color:var(--text);
+      background:
+        radial-gradient(900px 480px at 15% 6%, rgba(109,40,217,.12), transparent 60%),
+        radial-gradient(800px 420px at 88% 18%, rgba(8,145,178,.10), transparent 55%),
+        radial-gradient(700px 420px at 50% 105%, rgba(22,163,74,.08), transparent 60%),
+        var(--bg);
+    }
+    a{color:inherit; text-decoration:none}
+    button{font-family:inherit}
+    hr{border:0;border-top:1px solid var(--border);margin:14px 0}
+
+    /* Top bar */
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      display:flex; align-items:center; gap:12px;
+      padding:14px 16px;
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,.78);
+      border-bottom:1px solid var(--border);
+    }
+    .brand{display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:.2px;}
+    .logo{
+      width:34px;height:34px;border-radius:12px;
+      background:linear-gradient(135deg,var(--brand1),var(--brand2));
+      box-shadow:0 14px 32px rgba(109,40,217,.18);
+    }
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border:1px solid var(--border);
+      background:rgba(255,255,255,.92);
+      border-radius:999px;color:var(--muted);font-size:12px
+    }
+    .spacer{flex:1}
+
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:9px 12px;border-radius:12px;border:1px solid var(--border);
+      background:rgba(255,255,255,.96);
+      color:var(--text);
+      cursor:pointer;
+      transition:transform .08s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+      box-shadow:0 8px 20px rgba(15,23,42,.06);
+      user-select:none;
+    }
+    .btn:hover{background:#fff;border-color:rgba(15,23,42,.18);box-shadow:0 10px 26px rgba(15,23,42,.10)}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{
+      background:linear-gradient(135deg, rgba(109,40,217,.95), rgba(8,145,178,.92));
+      color:#fff;
+      border-color:rgba(255,255,255,.35);
+      box-shadow:0 14px 28px rgba(109,40,217,.18);
+    }
+    .btn.ghost{
+      background:rgba(255,255,255,.72);
+    }
+
+    /* Layout */
+    .wrap{max-width:1320px; margin:0 auto; padding:18px}
+    .hero{padding:10px 0 6px 0}
+    .hero h1{margin:0 0 6px 0; font-size:28px; letter-spacing:-.02em}
+    .hero p{margin:0; color:var(--muted); line-height:1.6}
+
+    .grid{display:grid; gap:14px}
+    .grid.c2{grid-template-columns: 1.2fr .8fr}
+    .grid.c3{grid-template-columns: 1fr 1fr 1fr}
+    .grid.c4{grid-template-columns: 1fr 1fr 1fr 1fr}
+    @media (max-width:1100px){ .grid.c2,.grid.c3,.grid.c4{grid-template-columns:1fr} }
+
+    .card{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding: var(--pad);
+    }
+    .card.compact{padding:14px; border-radius:16px}
+    .card h2{margin:0 0 6px 0; font-size:18px}
+    .card p{margin:0 0 10px 0; color:var(--muted); line-height:1.5}
+
+    /* Tabs */
+    .tabs{display:flex; gap:10px; flex-wrap:wrap; margin:12px 0 0 0}
+    .tab{
+      padding:8px 10px; border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.92);
+      color:var(--muted); font-size:13px; cursor:pointer;
+      box-shadow:0 8px 18px rgba(15,23,42,.06);
+      user-select:none;
+    }
+    .tab.active{
+      background:rgba(109,40,217,.10);
+      border-color:rgba(109,40,217,.25);
+      color:var(--text)
+    }
+
+    /* KPI */
+    .kpi .label{color:var(--muted); font-size:12px; letter-spacing:.08em; text-transform:uppercase}
+    .kpi .big{font-size:28px; font-weight:900; letter-spacing:-.02em}
+    .delta{
+      margin-top:6px; display:inline-flex; gap:6px;
+      font-size:12px; padding:6px 9px; border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(2,6,23,.02);
+    }
+    .delta.ok{color:#0f5132;border-color:rgba(22,163,74,.22);background:rgba(22,163,74,.08)}
+    .delta.warn{color:#7c2d12;border-color:rgba(217,119,6,.22);background:rgba(217,119,6,.08)}
+    .delta.bad{color:#7f1d1d;border-color:rgba(220,38,38,.22);background:rgba(220,38,38,.08)}
+
+    /* Badges */
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:5px 9px;border-radius:999px;font-size:12px;
+      border:1px solid var(--border);background:rgba(2,6,23,.02)
+    }
+    .badge.ok{border-color:rgba(22,163,74,.24);background:rgba(22,163,74,.10);color:#0f5132}
+    .badge.warn{border-color:rgba(217,119,6,.24);background:rgba(217,119,6,.10);color:#7c2d12}
+    .badge.bad{border-color:rgba(220,38,38,.24);background:rgba(220,38,38,.10);color:#7f1d1d}
+    .badge.info{border-color:rgba(8,145,178,.24);background:rgba(8,145,178,.10);color:#0b4b5a}
+    .badge.purple{border-color:rgba(109,40,217,.24);background:rgba(109,40,217,.10);color:#3b1a6b}
+
+    /* Table */
+    .table{
+      width:100%; border-collapse:separate; border-spacing:0;
+      overflow:hidden; border:1px solid var(--border); border-radius:16px;
+      background:#fff;
+    }
+    .table th,.table td{
+      padding:10px 12px;
+      border-bottom:1px solid var(--border);
+      font-size:13px; vertical-align:top
+    }
+    .table th{
+      color:var(--muted); font-weight:800; text-align:left;
+      background:rgba(2,6,23,.02)
+    }
+    .table tr:last-child td{border-bottom:0}
+    .mono{font-family:var(--mono)}
+
+    /* Mini charts */
+    .miniChart{
+      border-radius:16px; border:1px solid var(--border);
+      background:rgba(2,6,23,.01);
+      padding:14px; display:flex; flex-direction:column; gap:10px;
+    }
+    .barRow{display:flex; align-items:center; gap:10px}
+    .barLbl{width:160px; color:var(--muted); font-size:12px}
+    .bar{flex:1; height:10px; border-radius:999px; background:rgba(2,6,23,.08); overflow:hidden}
+    .bar > i{display:block; height:100%; width:50%; background:linear-gradient(90deg, rgba(109,40,217,.95), rgba(8,145,178,.92))}
+    .barVal{width:56px; text-align:right; font-family:var(--mono); font-size:12px; color:rgba(15,23,42,.88)}
+
+    /* Callout */
+    .callout{
+      display:flex; gap:12px; padding:12px 14px; border-radius:16px;
+      border:1px dashed rgba(15,23,42,.18);
+      background:rgba(255,255,255,.85);
+    }
+    .ico{
+      width:30px; height:30px; border-radius:12px;
+      display:grid; place-items:center;
+      border:1px solid var(--border);
+      background:rgba(2,6,23,.02)
+    }
+    .code{
+      font-family:var(--mono); font-size:12px;
+      padding:2px 6px; border:1px solid var(--border);
+      border-radius:10px; background:rgba(2,6,23,.02)
+    }
+
+    /* Left nav (WorkApp pages) */
+    .layout{display:grid; grid-template-columns: 310px 1fr; gap:14px; margin-top:12px}
+    @media (max-width:1100px){ .layout{grid-template-columns:1fr} }
+
+    .nav{
+      position:sticky; top:78px;
+      align-self:start;
+    }
+    .nav .card{padding:14px}
+    .navTitle{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .navTitle b{font-size:13px}
+    .navGroup{margin-top:10px}
+    .navGroup .gtitle{
+      font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+      color:var(--muted); margin:12px 0 6px 0
+    }
+    .navItem{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:9px 10px; border-radius:12px;
+      border:1px solid transparent;
+      cursor:pointer;
+      color:var(--text);
+    }
+    .navItem:hover{background:rgba(2,6,23,.02); border-color:rgba(15,23,42,.10)}
+    .navItem.active{
+      background:rgba(8,145,178,.10);
+      border-color:rgba(8,145,178,.22);
+    }
+    .navItem small{color:var(--muted)}
+    .dot{width:8px;height:8px;border-radius:999px;background:rgba(15,23,42,.24)}
+    .dot.ok{background:rgba(22,163,74,.75)}
+    .dot.warn{background:rgba(217,119,6,.80)}
+    .dot.bad{background:rgba(220,38,38,.80)}
+    .dot.info{background:rgba(8,145,178,.80)}
+    .dot.purple{background:rgba(109,40,217,.80)}
+
+    /* Page container */
+    .page{display:none}
+    .page.active{display:block}
+    .footer{color:var(--muted); font-size:12px; margin-top:12px}
+
+    /* Role switcher */
+    select{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:9px 10px;
+      border-radius:12px;
+      box-shadow:0 8px 18px rgba(15,23,42,.05);
+      color:var(--text);
+      cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand"><div class="logo"></div>Idea &amp; Feedback Management</div>
+    <div class="pill">EDSPPM • Front Door to Product Development</div>
+    <div class="spacer"></div>
+
+    <span class="pill">
+      Role:
+      <select id="roleSel" aria-label="Role selector">
+        <option value="requestor">Requestor / Submitter</option>
+        <option value="manager">Functional Manager</option>
+        <option value="pm">Product Manager / Idea Ops (Doer)</option>
+        <option value="steerco">Steering Committee</option>
+        <option value="leadership">Leadership</option>
+      </select>
+    </span>
+
+    <button class="btn" onclick="openPage('idea-portal')">Idea Portal</button>
+    <button class="btn primary" onclick="fakeLink('{{IDEA_SUBMISSION_FORM_URL}}','Submit Idea')">Submit Idea</button>
+  </div>
+
+  <div class="wrap">
+    <div class="hero">
+      <h1>One place to submit ideas, track progress, and capture feedback</h1>
+      <p>This Work App is the enterprise front door (US + OUS) for ideation and feedback. Everything links back to the <b>Idea Table</b>.</p>
+      <div class="tabs">
+        <div class="tab active" data-tab="workapp" onclick="showShell()">Work App</div>
+        <div class="tab" data-tab="structure" onclick="showStructure()">Structure &amp; Linking</div>
+        <div class="tab" data-tab="stages" onclick="showStages()">Your Stages</div>
+      </div>
+    </div>
+
+    <!-- WorkApp Shell -->
+    <div id="shell">
+      <div class="layout">
+        <!-- NAV -->
+        <aside class="nav">
+          <div class="card">
+            <div class="navTitle">
+              <b>Pages (Idea &amp; Feedback)</b>
+              <span class="badge info" id="roleBadge">Requestor</span>
+            </div>
+
+            <div class="navGroup" data-roles="requestor manager pm steerco leadership">
+              <div class="gtitle">Front Door</div>
+              <div class="navItem active" data-page="idea-portal" onclick="openPage('idea-portal')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot info"></span>Idea Portal</span>
+                <small>Dashboard</small>
+              </div>
+              <div class="navItem" data-page="submit-idea" onclick="openPage('submit-idea')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot purple"></span>Submit an Idea</span>
+                <small>Form</small>
+              </div>
+              <div class="navItem" data-page="delivered-feedback" onclick="openPage('delivered-feedback')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot ok"></span>Delivered + Feedback</span>
+                <small>Dashboard</small>
+              </div>
+            </div>
+
+            <div class="navGroup" data-roles="requestor">
+              <div class="gtitle">My Views</div>
+              <div class="navItem" data-page="my-ideas" onclick="openPage('my-ideas')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot"></span>My Ideas</span>
+                <small>Report</small>
+              </div>
+              <div class="navItem" data-page="my-feedback" onclick="openPage('my-feedback')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot"></span>My Feedback</span>
+                <small>Report</small>
+              </div>
+              <div class="navItem" data-page="waiting-on-me" onclick="openPage('waiting-on-me')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot warn"></span>Waiting on Me</span>
+                <small>Report</small>
+              </div>
+            </div>
+
+            <div class="navGroup" data-roles="manager">
+              <div class="gtitle">Manager Views</div>
+              <div class="navItem" data-page="manager-portal" onclick="openPage('manager-portal')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot info"></span>Manager Portal</span>
+                <small>Dashboard</small>
+              </div>
+              <div class="navItem" data-page="team-ideas" onclick="openPage('team-ideas')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot"></span>My Team’s Ideas</span>
+                <small>Report</small>
+              </div>
+              <div class="navItem" data-page="team-stale" onclick="openPage('team-stale')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot warn"></span>At Risk / Stale</span>
+                <small>Report</small>
+              </div>
+            </div>
+
+            <div class="navGroup" data-roles="pm">
+              <div class="gtitle">Doer Views (PM / Idea Ops)</div>
+              <div class="navItem" data-page="pm-doer" onclick="openPage('pm-doer')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot info"></span>Doer Dashboard</span>
+                <small>Dashboard</small>
+              </div>
+              <div class="navItem" data-page="triage-queue" onclick="openPage('triage-queue')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot purple"></span>Triage Queue</span>
+                <small>Report</small>
+              </div>
+              <div class="navItem" data-page="needs-info-queue" onclick="openPage('needs-info-queue')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot warn"></span>Needs More Info</span>
+                <small>Report</small>
+              </div>
+              <div class="navItem" data-page="requirements-queue" onclick="openPage('requirements-queue')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot info"></span>Gathering Requirements</span>
+                <small>Report</small>
+              </div>
+              <div class="navItem" data-page="approved-delivery" onclick="openPage('approved-delivery')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot ok"></span>Approved → Delivery</span>
+                <small>Report</small>
+              </div>
+              <div class="navItem" data-page="feedback-monitor" onclick="openPage('feedback-monitor')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot"></span>Feedback Monitoring</span>
+                <small>Dashboard</small>
+              </div>
+            </div>
+
+            <div class="navGroup" data-roles="steerco leadership">
+              <div class="gtitle">Executive / SteerCo</div>
+              <div class="navItem" data-page="portfolio-insights" onclick="openPage('portfolio-insights')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot info"></span>Portfolio Insights</span>
+                <small>Dashboard</small>
+              </div>
+              <div class="navItem" data-page="decision-ready" onclick="openPage('decision-ready')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot warn"></span>Decision-Ready Ideas</span>
+                <small>Report</small>
+              </div>
+            </div>
+
+            <div class="navGroup" data-roles="requestor manager pm steerco leadership">
+              <div class="gtitle">Help</div>
+              <div class="navItem" data-page="how-it-works" onclick="openPage('how-it-works')">
+                <span style="display:flex;align-items:center;gap:10px"><span class="dot"></span>How it Works</span>
+                <small>Guide</small>
+              </div>
+            </div>
+
+            <div class="footer">
+              Replace placeholders like <span class="code">{{IDEA_SUBMISSION_FORM_URL}}</span> with Smartsheet links.
+            </div>
+          </div>
+        </aside>
+
+        <!-- CONTENT -->
+        <main>
+          <!-- IDEA PORTAL -->
+          <section class="page active" id="idea-portal">
+            <div class="grid c4">
+              <div class="card compact kpi"><div class="label">Open ideas</div><div class="big">84</div><div class="delta ok">▲ 6 this month</div></div>
+              <div class="card compact kpi"><div class="label">Needs more info</div><div class="big">12</div><div class="delta warn">requestor action</div></div>
+              <div class="card compact kpi"><div class="label">In requirements</div><div class="big">9</div><div class="delta ok">moving</div></div>
+              <div class="card compact kpi"><div class="label">Delivered (90 days)</div><div class="big">14</div><div class="delta ok">feedback open</div></div>
+            </div>
+
+            <div class="grid c2" style="margin-top:14px">
+              <div class="card">
+                <h2>Submit &amp; Track</h2>
+                <p>Use this Work App to submit ideas, follow updates, and share feedback after delivery.</p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                  <button class="btn primary" onclick="fakeLink('{{IDEA_SUBMISSION_FORM_URL}}','Submit an Idea')">Submit an Idea</button>
+                  <button class="btn" onclick="openPage('my-ideas')">View My Ideas</button>
+                  <button class="btn" onclick="openPage('delivered-feedback')">Give Feedback</button>
+                </div>
+
+                <div class="callout" style="margin-top:14px">
+                  <div class="ico">🧭</div>
+                  <div>
+                    <b>What happens next</b>
+                    <div style="color:var(--muted);line-height:1.45;margin-top:4px">
+                      1) We review and triage new ideas → 2) If needed, we request more info →
+                      3) We gather requirements → 4) Approved ideas enter delivery → 5) Delivered ideas open feedback
+                    </div>
+                  </div>
+                </div>
+
+                <hr/>
+                <h2>Top Ideas Right Now (example)</h2>
+                <table class="table">
+                  <thead>
+                    <tr><th>ID</th><th>Idea</th><th>Dept</th><th>Region</th><th>Stage</th><th>Roadmap</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="mono">IDEA-0241</td><td>Unified US/OUS dashboard filters</td><td>Sales Ops</td><td>Global</td>
+                      <td><span class="badge info">Gathering Requirements</span></td><td><span class="badge purple">Next</span></td>
+                    </tr>
+                    <tr>
+                      <td class="mono">IDEA-0237</td><td>Case routing transparency for supervisors</td><td>Customer Service</td><td>US</td>
+                      <td><span class="badge info">Under Consideration</span></td><td><span class="badge purple">Now</span></td>
+                    </tr>
+                    <tr>
+                      <td class="mono">IDEA-0229</td><td>Standardize lead disposition values</td><td>Inside Sales</td><td>OUS</td>
+                      <td><span class="badge info">Approved</span></td><td><span class="badge purple">Now</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="card">
+                <h2>Idea Pipeline by Stage (demo)</h2>
+                <div class="miniChart">
+                  <div class="barRow"><div class="barLbl">Open</div><div class="bar"><i style="width:78%"></i></div><div class="barVal">28</div></div>
+                  <div class="barRow"><div class="barLbl">Under Review</div><div class="bar"><i style="width:64%"></i></div><div class="barVal">18</div></div>
+                  <div class="barRow"><div class="barLbl">Needs More Info</div><div class="bar"><i style="width:40%"></i></div><div class="barVal">12</div></div>
+                  <div class="barRow"><div class="barLbl">In Research</div><div class="bar"><i style="width:30%"></i></div><div class="barVal">10</div></div>
+                  <div class="barRow"><div class="barLbl">Gathering Req.</div><div class="bar"><i style="width:24%"></i></div><div class="barVal">9</div></div>
+                  <div class="barRow"><div class="barLbl">Approved</div><div class="bar"><i style="width:18%"></i></div><div class="barVal">6</div></div>
+                  <div class="barRow"><div class="barLbl">Delivery</div><div class="bar"><i style="width:16%"></i></div><div class="barVal">5</div></div>
+                  <div class="barRow"><div class="barLbl">Done (90d)</div><div class="bar"><i style="width:20%"></i></div><div class="barVal">14</div></div>
+                </div>
+
+                <hr/>
+                <h2>Recently Delivered (example)</h2>
+                <table class="table">
+                  <thead><tr><th>ID</th><th>Delivered Item</th><th>Dept</th><th>Region</th><th>Feedback</th></tr></thead>
+                  <tbody>
+                    <tr>
+                      <td class="mono">IDEA-0211</td><td>New “My Leads” dashboard</td><td>Inside Sales</td><td>US</td>
+                      <td><span class="badge ok">Open</span></td>
+                    </tr>
+                    <tr>
+                      <td class="mono">IDEA-0204</td><td>Case escalation quick action</td><td>Customer Service</td><td>Global</td>
+                      <td><span class="badge ok">Open</span></td>
+                    </tr>
+                    <tr>
+                      <td class="mono">IDEA-0198</td><td>Updated field-level help text</td><td>Compliance</td><td>OUS</td>
+                      <td><span class="badge info">Closed</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- SUBMIT IDEA -->
+          <section class="page" id="submit-idea">
+            <div class="card">
+              <h2>Submit an Idea (Form)</h2>
+              <p>In Smartsheet WorkApps, this page is a button/link to your submission form.</p>
+              <div class="callout">
+                <div class="ico">🔗</div>
+                <div>
+                  <b>Form link placeholder</b>
+                  <div style="color:var(--muted);line-height:1.45;margin-top:4px">
+                    Replace with: <span class="code">{{IDEA_SUBMISSION_FORM_URL}}</span>
+                  </div>
+                  <div style="margin-top:10px">
+                    <button class="btn primary" onclick="fakeLink('{{IDEA_SUBMISSION_FORM_URL}}','Submit an Idea')">Open Idea Submission Form</button>
+                    <button class="btn" onclick="openPage('idea-portal')">Back to Idea Portal</button>
+                  </div>
+                </div>
+              </div>
+
+              <hr/>
+              <h2>Example form fields (recommended)</h2>
+              <table class="table">
+                <thead><tr><th>Field</th><th>Type</th><th>Why it matters</th></tr></thead>
+                <tbody>
+                  <tr><td>Idea Title</td><td>Text</td><td>Searchable headline</td></tr>
+                  <tr><td>Problem / Opportunity</td><td>Long text</td><td>Clarifies what we’re solving</td></tr>
+                  <tr><td>Who is impacted?</td><td>Dropdown (Dept/Team)</td><td>Manager views + prioritization</td></tr>
+                  <tr><td>Region</td><td>Dropdown (US / OUS / Global)</td><td>Enterprise alignment</td></tr>
+                  <tr><td>Primary KPI</td><td>Dropdown</td><td>Value & reporting</td></tr>
+                  <tr><td>Urgency</td><td>Dropdown</td><td>Triage signal</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- MY IDEAS -->
+          <section class="page" id="my-ideas">
+            <div class="grid c4">
+              <div class="card compact kpi"><div class="label">My open ideas</div><div class="big">6</div><div class="delta ok">▲ 1 new</div></div>
+              <div class="card compact kpi"><div class="label">Needs more info</div><div class="big">1</div><div class="delta warn">action needed</div></div>
+              <div class="card compact kpi"><div class="label">In progress</div><div class="big">2</div><div class="delta ok">moving</div></div>
+              <div class="card compact kpi"><div class="label">Done (90 days)</div><div class="big">1</div><div class="delta ok">feedback open</div></div>
+            </div>
+
+            <div class="card" style="margin-top:14px">
+              <h2>My Submitted Ideas (example report)</h2>
+              <p>This is a report filtered by <b>Submitted By = Current User</b>.</p>
+              <table class="table">
+                <thead><tr><th>ID</th><th>Idea</th><th>Stage</th><th>Roadmap</th><th>Last Update</th><th>Next Step</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">IDEA-0241</td><td>Unified US/OUS dashboard filters</td><td><span class="badge info">Gathering Requirements</span></td><td><span class="badge purple">Next</span></td><td>2d ago</td><td>Confirm requirements</td></tr>
+                  <tr><td class="mono">IDEA-0233</td><td>Auto-log call outcomes</td><td><span class="badge warn">Needs More Info</span></td><td><span class="badge purple">Items to Discuss</span></td><td>Today</td><td>Provide sample scenarios</td></tr>
+                  <tr><td class="mono">IDEA-0221</td><td>Case macro standardization</td><td><span class="badge info">Delivery</span></td><td><span class="badge purple">Now</span></td><td>1w ago</td><td>Watch release notes</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- WAITING ON ME -->
+          <section class="page" id="waiting-on-me">
+            <div class="card">
+              <h2>Waiting on Me (example report)</h2>
+              <p>Use a report filtered by <b>Idea Stage = Needs More Info</b> and <b>Submitted By = Current User</b>.</p>
+              <table class="table">
+                <thead><tr><th>ID</th><th>Idea</th><th>Requested</th><th>What we need</th><th>Due</th><th>Action</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="mono">IDEA-0233</td><td>Auto-log call outcomes</td><td>Today</td>
+                    <td>Provide 3 example scenarios + expected results</td><td>Feb 6</td>
+                    <td><button class="btn" onclick="fakeLink('{{IDEA_UPDATE_LINK}}','Add update')">Add update</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- MY FEEDBACK -->
+          <section class="page" id="my-feedback">
+            <div class="card">
+              <h2>My Feedback (example report)</h2>
+              <p>Feedback entries filtered by <b>Submitted By = Current User</b>.</p>
+              <table class="table">
+                <thead><tr><th>Date</th><th>Idea ID</th><th>Item</th><th>Overall</th><th>Solve</th><th>Timeline</th><th>Comms</th><th>Comments</th></tr></thead>
+                <tbody>
+                  <tr><td>Feb 2</td><td class="mono">IDEA-0211</td><td>New “My Leads” dashboard</td><td>5</td><td>5</td><td>4</td><td>5</td><td>Huge improvement for daily work.</td></tr>
+                  <tr><td>Jan 19</td><td class="mono">IDEA-0198</td><td>Updated help text</td><td>4</td><td>4</td><td>4</td><td>4</td><td>Good change, clearer instructions.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- MANAGER PORTAL -->
+          <section class="page" id="manager-portal">
+            <div class="grid c4">
+              <div class="card compact kpi"><div class="label">Team open ideas</div><div class="big">19</div><div class="delta ok">Sales Ops</div></div>
+              <div class="card compact kpi"><div class="label">At risk / stale</div><div class="big">4</div><div class="delta warn">needs follow-up</div></div>
+              <div class="card compact kpi"><div class="label">In requirements</div><div class="big">3</div><div class="delta ok">moving</div></div>
+              <div class="card compact kpi"><div class="label">Done (90 days)</div><div class="big">2</div><div class="delta ok">feedback open</div></div>
+            </div>
+
+            <div class="grid c2" style="margin-top:14px">
+              <div class="card">
+                <h2>Team Pipeline (demo)</h2>
+                <div class="miniChart">
+                  <div class="barRow"><div class="barLbl">Open</div><div class="bar"><i style="width:74%"></i></div><div class="barVal">7</div></div>
+                  <div class="barRow"><div class="barLbl">Under Review</div><div class="bar"><i style="width:56%"></i></div><div class="barVal">5</div></div>
+                  <div class="barRow"><div class="barLbl">Needs More Info</div><div class="bar"><i style="width:28%"></i></div><div class="barVal">3</div></div>
+                  <div class="barRow"><div class="barLbl">Gathering Req.</div><div class="bar"><i style="width:22%"></i></div><div class="barVal">2</div></div>
+                  <div class="barRow"><div class="barLbl">Approved/Delivery</div><div class="bar"><i style="width:18%"></i></div><div class="barVal">2</div></div>
+                </div>
+
+                <div class="callout" style="margin-top:14px">
+                  <div class="ico">👥</div>
+                  <div>
+                    <b>How manager scoping works</b>
+                    <div style="color:var(--muted);line-height:1.45;margin-top:4px">
+                      Filter reports by <span class="code">Department/Team</span> to show your team’s submissions and progress.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <h2>Team Open Ideas (example)</h2>
+                <table class="table">
+                  <thead><tr><th>ID</th><th>Idea</th><th>Submitted By</th><th>Stage</th><th>Roadmap</th><th>Last Update</th></tr></thead>
+                  <tbody>
+                    <tr><td class="mono">IDEA-0241</td><td>Unified US/OUS dashboard filters</td><td>Alex</td><td><span class="badge info">Gathering Requirements</span></td><td><span class="badge purple">Next</span></td><td>2d ago</td></tr>
+                    <tr><td class="mono">IDEA-0236</td><td>Auto-assign owners by queue</td><td>Sam</td><td><span class="badge info">Under Review</span></td><td><span class="badge purple">Items to Discuss</span></td><td>5d ago</td></tr>
+                    <tr><td class="mono">IDEA-0227</td><td>Standardize opportunity validation</td><td>Jamie</td><td><span class="badge warn">Needs More Info</span></td><td><span class="badge purple">Vision</span></td><td>Today</td></tr>
+                  </tbody>
+                </table>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+                  <button class="btn" onclick="openPage('team-ideas')">Open Team Ideas Report</button>
+                  <button class="btn" onclick="openPage('team-stale')">View At Risk / Stale</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- TEAM IDEAS REPORT -->
+          <section class="page" id="team-ideas">
+            <div class="card">
+              <h2>My Team’s Ideas (example report)</h2>
+              <p>Report filtered by <b>Department/Team = Manager’s Team</b> and excluding Done/Rejected/Removed.</p>
+              <table class="table">
+                <thead><tr><th>ID</th><th>Idea</th><th>Region</th><th>Stage</th><th>Roadmap</th><th>Owner (PM)</th><th>Last Update</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">IDEA-0241</td><td>Unified US/OUS dashboard filters</td><td>Global</td><td><span class="badge info">Gathering Requirements</span></td><td><span class="badge purple">Next</span></td><td>PM</td><td>2d</td></tr>
+                  <tr><td class="mono">IDEA-0236</td><td>Auto-assign owners by queue</td><td>US</td><td><span class="badge info">Under Review</span></td><td><span class="badge purple">Items to Discuss</span></td><td>PM</td><td>5d</td></tr>
+                  <tr><td class="mono">IDEA-0227</td><td>Standardize opportunity validation</td><td>OUS</td><td><span class="badge warn">Needs More Info</span></td><td><span class="badge purple">Vision</span></td><td>PM</td><td>Today</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- TEAM STALE REPORT -->
+          <section class="page" id="team-stale">
+            <div class="card">
+              <h2>At Risk / Stale (example report)</h2>
+              <p>Report filtered by <b>Department/Team</b> and <b>Last Updated older than 14 days</b> (or Stale checkbox).</p>
+              <table class="table">
+                <thead><tr><th>ID</th><th>Idea</th><th>Stage</th><th>Last Update</th><th>Reason</th><th>Action</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="mono">IDEA-0219</td><td>Consolidate duplicate report suites</td>
+                    <td><span class="badge info">Under Consideration</span></td><td>18d ago</td>
+                    <td>No update posted</td>
+                    <td><button class="btn" onclick="fakeLink('{{IDEA_UPDATE_LINK}}','Add update')">Request update</button></td>
+                  </tr>
+                  <tr>
+                    <td class="mono">IDEA-0208</td><td>Improve error handling for integrations</td>
+                    <td><span class="badge info">In Research</span></td><td>21d ago</td>
+                    <td>Pending investigation</td>
+                    <td><button class="btn" onclick="fakeLink('{{IDEA_UPDATE_LINK}}','Escalate')">Escalate</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- PM DOER DASHBOARD -->
+          <section class="page" id="pm-doer">
+            <div class="grid c4">
+              <div class="card compact kpi"><div class="label">Triage (Open)</div><div class="big">11</div><div class="delta warn">new ideas</div></div>
+              <div class="card compact kpi"><div class="label">Needs more info</div><div class="big">12</div><div class="delta warn">requestors</div></div>
+              <div class="card compact kpi"><div class="label">Gathering reqs</div><div class="big">9</div><div class="delta ok">active</div></div>
+              <div class="card compact kpi"><div class="label">Approved → Delivery</div><div class="big">6</div><div class="delta ok">handoff ready</div></div>
+            </div>
+
+            <div class="grid c2" style="margin-top:14px">
+              <div class="card">
+                <h2>My Doer Queue (example)</h2>
+                <p>WorkApp-scoped reports for PM / Idea Ops execution.</p>
+                <table class="table">
+                  <thead><tr><th>ID</th><th>Idea</th><th>Dept</th><th>Region</th><th>Stage</th><th>Next step</th></tr></thead>
+                  <tbody>
+                    <tr><td class="mono">IDEA-0248</td><td>Global “My Work” view conventions</td><td>IT</td><td>Global</td><td><span class="badge purple">Open</span></td><td>Triage</td></tr>
+                    <tr><td class="mono">IDEA-0233</td><td>Auto-log call outcomes</td><td>Inside Sales</td><td>US</td><td><span class="badge warn">Needs More Info</span></td><td>Request examples</td></tr>
+                    <tr><td class="mono">IDEA-0241</td><td>Unified US/OUS dashboard filters</td><td>Sales Ops</td><td>Global</td><td><span class="badge info">Gathering Requirements</span></td><td>Finalize requirements</td></tr>
+                  </tbody>
+                </table>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+                  <button class="btn primary" onclick="openPage('triage-queue')">Open Triage Queue</button>
+                  <button class="btn" onclick="openPage('needs-info-queue')">Open Needs Info Queue</button>
+                  <button class="btn" onclick="openPage('requirements-queue')">Open Requirements Queue</button>
+                  <button class="btn" onclick="openPage('approved-delivery')">Approved → Delivery</button>
+                </div>
+              </div>
+
+              <div class="card">
+                <h2>Stage Distribution (demo)</h2>
+                <div class="miniChart">
+                  <div class="barRow"><div class="barLbl">Open</div><div class="bar"><i style="width:62%"></i></div><div class="barVal">11</div></div>
+                  <div class="barRow"><div class="barLbl">Under Review</div><div class="bar"><i style="width:46%"></i></div><div class="barVal">8</div></div>
+                  <div class="barRow"><div class="barLbl">Needs More Info</div><div class="bar"><i style="width:52%"></i></div><div class="barVal">12</div></div>
+                  <div class="barRow"><div class="barLbl">In Research</div><div class="bar"><i style="width:34%"></i></div><div class="barVal">10</div></div>
+                  <div class="barRow"><div class="barLbl">Gathering Req.</div><div class="bar"><i style="width:40%"></i></div><div class="barVal">9</div></div>
+                  <div class="barRow"><div class="barLbl">Under Consideration</div><div class="bar"><i style="width:26%"></i></div><div class="barVal">6</div></div>
+                  <div class="barRow"><div class="barLbl">Approved</div><div class="bar"><i style="width:22%"></i></div><div class="barVal">6</div></div>
+                </div>
+
+                <div class="callout" style="margin-top:14px">
+                  <div class="ico">🧩</div>
+                  <div>
+                    <b>Linking rule</b>
+                    <div style="color:var(--muted);line-height:1.45;margin-top:4px">
+                      Every Epic/Feature/Story created from an Idea must carry <span class="code">Idea ID</span> so delivery status can roll up.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- TRIAGE QUEUE -->
+          <section class="page" id="triage-queue">
+            <div class="card">
+              <h2>Triage Queue (Open ideas)</h2>
+              <p>Report filter: <b>Stage = Open</b> (and optionally exclude Parked/On Hold).</p>
+              <table class="table">
+                <thead><tr><th>ID</th><th>Idea</th><th>Dept</th><th>Region</th><th>Submitted</th><th>Action</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">IDEA-0248</td><td>Global “My Work” view conventions</td><td>IT</td><td>Global</td><td>Yesterday</td><td><button class="btn" onclick="fakeLink('{{IDEA_TRIAGE_UPDATE}}','Triage')">Triage</button></td></tr>
+                  <tr><td class="mono">IDEA-0247</td><td>Standardize case macros</td><td>Customer Service</td><td>US</td><td>2d ago</td><td><button class="btn" onclick="fakeLink('{{IDEA_TRIAGE_UPDATE}}','Triage')">Triage</button></td></tr>
+                  <tr><td class="mono">IDEA-0246</td><td>Improve search for knowledge articles</td><td>Customer Service</td><td>OUS</td><td>3d ago</td><td><button class="btn" onclick="fakeLink('{{IDEA_TRIAGE_UPDATE}}','Triage')">Triage</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- NEEDS INFO QUEUE -->
+          <section class="page" id="needs-info-queue">
+            <div class="card">
+              <h2>Needs More Info Queue</h2>
+              <p>Report filter: <b>Stage = Needs More Info</b>.</p>
+              <table class="table">
+                <thead><tr><th>ID</th><th>Idea</th><th>Requested From</th><th>Requested</th><th>Due</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">IDEA-0233</td><td>Auto-log call outcomes</td><td>Chris</td><td>Today</td><td>Feb 6</td><td><span class="badge warn">Waiting</span></td></tr>
+                  <tr><td class="mono">IDEA-0227</td><td>Standardize opportunity validation</td><td>Jamie</td><td>Today</td><td>Feb 7</td><td><span class="badge warn">Waiting</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- REQUIREMENTS QUEUE -->
+          <section class="page" id="requirements-queue">
+            <div class="card">
+              <h2>Gathering Requirements Queue</h2>
+              <p>Report filter: <b>Stage = Gathering Requirements</b>.</p>
+              <table class="table">
+                <thead><tr><th>ID</th><th>Idea</th><th>PM Owner</th><th>Target Roadmap</th><th>Next Milestone</th><th>Risk</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">IDEA-0241</td><td>Unified US/OUS dashboard filters</td><td>PM</td><td><span class="badge purple">Next</span></td><td>Requirements sign-off</td><td><span class="badge ok">On Track</span></td></tr>
+                  <tr><td class="mono">IDEA-0239</td><td>New global SLA dashboard</td><td>PM</td><td><span class="badge purple">Now</span></td><td>Confirm definitions</td><td><span class="badge warn">At Risk</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- APPROVED → DELIVERY -->
+          <section class="page" id="approved-delivery">
+            <div class="card">
+              <h2>Approved → Delivery (handoff ready)</h2>
+              <p>Report filter: <b>Stage in (Approved, Delivery)</b>. These should link to Epics/Features/Stories.</p>
+              <table class="table">
+                <thead><tr><th>ID</th><th>Idea</th><th>Stage</th><th>Epic/Feature Link</th><th>Next</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">IDEA-0229</td><td>Standardize lead disposition values</td><td><span class="badge ok">Approved</span></td><td class="mono">EP-090 / FTR-310</td><td>Create stories</td></tr>
+                  <tr><td class="mono">IDEA-0221</td><td>Case macro standardization</td><td><span class="badge info">Delivery</span></td><td class="mono">EP-104 / FTR-322</td><td>Track sprint progress</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- DELIVERED + FEEDBACK -->
+          <section class="page" id="delivered-feedback">
+            <div class="grid c4">
+              <div class="card compact kpi"><div class="label">Feedback responses (30d)</div><div class="big">27</div><div class="delta ok">▲ 9</div></div>
+              <div class="card compact kpi"><div class="label">Overall satisfaction</div><div class="big">4.4</div><div class="delta ok">avg</div></div>
+              <div class="card compact kpi"><div class="label">Solve the problem</div><div class="big">4.2</div><div class="delta ok">avg</div></div>
+              <div class="card compact kpi"><div class="label">Communication</div><div class="big">4.1</div><div class="delta warn">improve</div></div>
+            </div>
+
+            <div class="grid c2" style="margin-top:14px">
+              <div class="card">
+                <h2>Give Feedback (Form)</h2>
+                <p>Feedback is collected on delivered ideas: Satisfaction, Solve the Problem, Delivery Timeline, Communication/Updates.</p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                  <button class="btn primary" onclick="fakeLink('{{FEEDBACK_FORM_URL}}','Give Feedback')">Give Feedback</button>
+                  <button class="btn" onclick="openPage('feedback-monitor')">View Feedback Analytics</button>
+                </div>
+
+                <hr/>
+                <h2>Delivered Ideas (example)</h2>
+                <table class="table">
+                  <thead><tr><th>Idea ID</th><th>Delivered Item</th><th>Dept</th><th>Region</th><th>Feedback Status</th><th>Action</th></tr></thead>
+                  <tbody>
+                    <tr><td class="mono">IDEA-0211</td><td>New “My Leads” dashboard</td><td>Inside Sales</td><td>US</td><td><span class="badge ok">Open</span></td><td><button class="btn" onclick="fakeLink('{{FEEDBACK_FORM_URL}}','Give Feedback')">Rate</button></td></tr>
+                    <tr><td class="mono">IDEA-0204</td><td>Case escalation quick action</td><td>Customer Service</td><td>Global</td><td><span class="badge ok">Open</span></td><td><button class="btn" onclick="fakeLink('{{FEEDBACK_FORM_URL}}','Give Feedback')">Rate</button></td></tr>
+                    <tr><td class="mono">IDEA-0198</td><td>Updated field-level help text</td><td>Compliance</td><td>OUS</td><td><span class="badge info">Closed</span></td><td><button class="btn" onclick="alert('Feedback window closed');return false;">Closed</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="card">
+                <h2>Feedback Breakdown (demo)</h2>
+                <div class="miniChart">
+                  <div class="barRow"><div class="barLbl">Overall Satisfaction</div><div class="bar"><i style="width:88%"></i></div><div class="barVal">4.4</div></div>
+                  <div class="barRow"><div class="barLbl">Solve the Problem</div><div class="bar"><i style="width:84%"></i></div><div class="barVal">4.2</div></div>
+                  <div class="barRow"><div class="barLbl">Delivery Timeline</div><div class="bar"><i style="width:78%"></i></div><div class="barVal">3.9</div></div>
+                  <div class="barRow"><div class="barLbl">Communication/Updates</div><div class="bar"><i style="width:82%"></i></div><div class="barVal">4.1</div></div>
+                </div>
+
+                <div class="callout" style="margin-top:14px">
+                  <div class="ico">📣</div>
+                  <div>
+                    <b>Feedback loop</b>
+                    <div style="color:var(--muted);line-height:1.45;margin-top:4px">
+                      Feedback is linked back to the <b>Idea ID</b> and rolled up into the Idea Table for reporting.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- FEEDBACK MONITOR -->
+          <section class="page" id="feedback-monitor">
+            <div class="grid c2">
+              <div class="card">
+                <h2>Feedback Analytics (example)</h2>
+                <p>Use reports filtered by time window and score thresholds to spot improvement opportunities.</p>
+                <table class="table">
+                  <thead><tr><th>Date</th><th>Idea</th><th>Overall</th><th>Solve</th><th>Timeline</th><th>Comms</th><th>Comment</th></tr></thead>
+                  <tbody>
+                    <tr><td>Feb 2</td><td class="mono">IDEA-0211</td><td>5</td><td>5</td><td>4</td><td>5</td><td>Huge improvement for daily work.</td></tr>
+                    <tr><td>Feb 1</td><td class="mono">IDEA-0204</td><td>3</td><td>3</td><td>3</td><td>4</td><td>Delivered value, but timing slipped.</td></tr>
+                    <tr><td>Jan 29</td><td class="mono">IDEA-0204</td><td>4</td><td>4</td><td>3</td><td>3</td><td>More proactive comms would help.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="card">
+                <h2>Follow-up Needed (demo)</h2>
+                <div class="miniChart">
+                  <div class="barRow"><div class="barLbl">Overall ≤ 3</div><div class="bar"><i style="width:22%"></i></div><div class="barVal">4</div></div>
+                  <div class="barRow"><div class="barLbl">Solve ≤ 3</div><div class="bar"><i style="width:26%"></i></div><div class="barVal">5</div></div>
+                  <div class="barRow"><div class="barLbl">Timeline ≤ 3</div><div class="bar"><i style="width:34%"></i></div><div class="barVal">8</div></div>
+                  <div class="barRow"><div class="barLbl">Comms ≤ 3</div><div class="bar"><i style="width:30%"></i></div><div class="barVal">7</div></div>
+                </div>
+
+                <div class="callout" style="margin-top:14px">
+                  <div class="ico">🛠️</div>
+                  <div>
+                    <b>Operational use</b>
+                    <div style="color:var(--muted);line-height:1.45;margin-top:4px">
+                      Create a report “Low Scores” and route it to PM/Idea Ops for follow-up actions.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- PORTFOLIO INSIGHTS -->
+          <section class="page" id="portfolio-insights">
+            <div class="grid c4">
+              <div class="card compact kpi"><div class="label">Enterprise open</div><div class="big">84</div><div class="delta ok">global</div></div>
+              <div class="card compact kpi"><div class="label">Decision-ready</div><div class="big">7</div><div class="delta warn">SteerCo</div></div>
+              <div class="card compact kpi"><div class="label">Approved</div><div class="big">6</div><div class="delta ok">pipeline</div></div>
+              <div class="card compact kpi"><div class="label">Done (90d)</div><div class="big">14</div><div class="delta ok">value</div></div>
+            </div>
+
+            <div class="grid c2" style="margin-top:14px">
+              <div class="card">
+                <h2>Ideas by Region (demo)</h2>
+                <div class="miniChart">
+                  <div class="barRow"><div class="barLbl">Global</div><div class="bar"><i style="width:70%"></i></div><div class="barVal">41</div></div>
+                  <div class="barRow"><div class="barLbl">US</div><div class="bar"><i style="width:52%"></i></div><div class="barVal">28</div></div>
+                  <div class="barRow"><div class="barLbl">OUS</div><div class="bar"><i style="width:40%"></i></div><div class="barVal">15</div></div>
+                </div>
+
+                <hr/>
+                <h2>Ideas by Department (demo)</h2>
+                <div class="miniChart">
+                  <div class="barRow"><div class="barLbl">Sales Ops</div><div class="bar"><i style="width:58%"></i></div><div class="barVal">18</div></div>
+                  <div class="barRow"><div class="barLbl">Customer Service</div><div class="bar"><i style="width:52%"></i></div><div class="barVal">16</div></div>
+                  <div class="barRow"><div class="barLbl">Inside Sales</div><div class="bar"><i style="width:44%"></i></div><div class="barVal">12</div></div>
+                  <div class="barRow"><div class="barLbl">Compliance</div><div class="bar"><i style="width:30%"></i></div><div class="barVal">8</div></div>
+                </div>
+              </div>
+
+              <div class="card">
+                <h2>Decision-ready Items (example)</h2>
+                <p>Report filter suggestion: <b>Stage = Under Consideration</b> AND <b>Business Case = Complete</b> (if you track it).</p>
+                <table class="table">
+                  <thead><tr><th>ID</th><th>Idea</th><th>Region</th><th>Stage</th><th>Ask</th><th>Meeting</th></tr></thead>
+                  <tbody>
+                    <tr><td class="mono">IDEA-0237</td><td>Case routing transparency</td><td>US</td><td><span class="badge info">Under Consideration</span></td><td>Approve scope</td><td>Feb 9</td></tr>
+                    <tr><td class="mono">IDEA-0240</td><td>Global metrics standardization</td><td>Global</td><td><span class="badge info">Under Consideration</span></td><td>Approve investment</td><td>Feb 9</td></tr>
+                  </tbody>
+                </table>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+                  <button class="btn" onclick="openPage('decision-ready')">Open Decision-Ready Report</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- DECISION READY REPORT -->
+          <section class="page" id="decision-ready">
+            <div class="card">
+              <h2>Decision-Ready Ideas (example report)</h2>
+              <p>Typically a report filtered to: <b>Stage = Under Consideration</b> or <b>Approved</b> (depending on your governance point).</p>
+              <table class="table">
+                <thead><tr><th>ID</th><th>Idea</th><th>Dept</th><th>Region</th><th>Stage</th><th>Roadmap</th><th>Recommendation</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">IDEA-0237</td><td>Case routing transparency for supervisors</td><td>Customer Service</td><td>US</td><td><span class="badge info">Under Consideration</span></td><td><span class="badge purple">Now</span></td><td>Approve</td></tr>
+                  <tr><td class="mono">IDEA-0240</td><td>Global metrics standardization</td><td>IT</td><td>Global</td><td><span class="badge info">Under Consideration</span></td><td><span class="badge purple">Next</span></td><td>Approve</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- HOW IT WORKS -->
+          <section class="page" id="how-it-works">
+            <div class="card">
+              <h2>How it Works</h2>
+              <p>This Work App provides a consistent, enterprise process for ideation and feedback across US + OUS.</p>
+
+              <h2 style="margin-top:14px">Lifecycle</h2>
+              <table class="table">
+                <thead><tr><th>Stage</th><th>Meaning</th><th>What the submitter should expect</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="badge purple">Open</span></td><td>New idea submitted and ready for triage</td><td>Initial review + acknowledgement</td></tr>
+                  <tr><td><span class="badge info">Under Review</span></td><td>PM/Idea Ops evaluating problem and scope</td><td>May ask clarifying questions</td></tr>
+                  <tr><td><span class="badge warn">Needs More Info</span></td><td>We need details to continue evaluation</td><td>Please respond to the request</td></tr>
+                  <tr><td><span class="badge info">In Research</span></td><td>Investigating solution options/feasibility</td><td>Updates posted as we learn</td></tr>
+                  <tr><td><span class="badge info">Gathering Requirements</span></td><td>Defining requirements and acceptance criteria</td><td>May be invited to validate requirements</td></tr>
+                  <tr><td><span class="badge info">Under Consideration</span></td><td>Queued for prioritization/governance decision</td><td>Decision timeframe communicated</td></tr>
+                  <tr><td><span class="badge ok">Approved</span></td><td>Approved and ready to move into delivery planning</td><td>Linked work items will be created</td></tr>
+                  <tr><td><span class="badge info">Delivery</span></td><td>Work is in active delivery (sprints/releases)</td><td>Status updates on the idea</td></tr>
+                  <tr><td><span class="badge ok">Done</span></td><td>Delivered to users</td><td>Feedback window opens</td></tr>
+                  <tr><td><span class="badge bad">Rejected</span></td><td>Not moving forward</td><td>Reason communicated</td></tr>
+                  <tr><td><span class="badge bad">Removed</span></td><td>Withdrawn/duplicate/out of scope</td><td>Record retained for history</td></tr>
+                  <tr><td><span class="badge">Parked / On Hold</span></td><td>Paused for future revisit</td><td>Reviewed periodically</td></tr>
+                </tbody>
+              </table>
+
+              <div class="callout" style="margin-top:14px">
+                <div class="ico">🔗</div>
+                <div>
+                  <b>Linking to delivery</b>
+                  <div style="color:var(--muted);line-height:1.45;margin-top:4px">
+                    Once approved, the Idea ID links to Epics/Features/Stories in the Product &amp; Portfolio Work App.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </main>
+      </div>
+    </div>
+
+    <!-- STRUCTURE TAB -->
+    <div id="structure" style="display:none">
+      <div class="grid c2">
+        <div class="card">
+          <h2>Smartsheet Structure (recommended)</h2>
+          <table class="table">
+            <thead><tr><th>Component</th><th>Name</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td>Workspace</td><td>EDSPPM • Idea &amp; Feedback</td><td>Houses Idea + Feedback assets</td></tr>
+              <tr><td>Sheets</td><td>Idea Table</td><td>System of record for ideas (links to all downstream work)</td></tr>
+              <tr><td>Sheets</td><td>Feedback Table</td><td>Feedback records linked back to Idea ID</td></tr>
+              <tr><td>Reports</td><td>My Ideas / Team Ideas / Triage / Needs More Info / Requirements / Decision-ready</td><td>Role-based views</td></tr>
+              <tr><td>Dashboards</td><td>Idea Portal, Manager Portal, PM Doer Dashboard, Delivered + Feedback, Feedback Monitoring</td><td>World-class UX for each audience</td></tr>
+              <tr><td>Work App</td><td>Idea &amp; Feedback Management</td><td>Page visibility by role</td></tr>
+            </tbody>
+          </table>
+
+          <div class="callout" style="margin-top:14px">
+            <div class="ico">✅</div>
+            <div>
+              <b>Linking rule</b>
+              <div style="color:var(--muted);line-height:1.45;margin-top:4px">
+                Every downstream Epic/Feature/Story created from an Idea must carry <span class="code">Idea ID</span>.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Report filters (quick mapping)</h2>
+          <table class="table">
+            <thead><tr><th>Report</th><th>Primary filter</th><th>Scope</th></tr></thead>
+            <tbody>
+              <tr><td>My Ideas</td><td>Submitted By = Current User</td><td>Idea Table</td></tr>
+              <tr><td>Waiting on Me</td><td>Stage = Needs More Info AND Submitted By = Current User</td><td>Idea Table</td></tr>
+              <tr><td>Team Ideas</td><td>Department/Team = X</td><td>Idea Table</td></tr>
+              <tr><td>Triage Queue</td><td>Stage = Open</td><td>Idea Table</td></tr>
+              <tr><td>Requirements Queue</td><td>Stage = Gathering Requirements</td><td>Idea Table</td></tr>
+              <tr><td>Decision-ready</td><td>Stage = Under Consideration</td><td>Idea Table</td></tr>
+              <tr><td>Delivered</td><td>Stage = Done</td><td>Idea Table</td></tr>
+              <tr><td>Low Feedback</td><td>Overall ≤ 3 OR Solve ≤ 3</td><td>Feedback Table</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAGES TAB -->
+    <div id="stages" style="display:none">
+      <div class="card">
+        <h2>Your Idea Stages</h2>
+        <p>These are embedded into the prototype and used for queue/report filters.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+          <span class="badge">Parked</span>
+          <span class="badge">On Hold</span>
+          <span class="badge purple">Open</span>
+          <span class="badge info">Under Review</span>
+          <span class="badge warn">Needs More Info</span>
+          <span class="badge info">In Research</span>
+          <span class="badge info">Gathering Requirements</span>
+          <span class="badge info">Under Consideration</span>
+          <span class="badge ok">Approved</span>
+          <span class="badge info">Delivery</span>
+          <span class="badge ok">Done</span>
+          <span class="badge bad">Rejected</span>
+          <span class="badge bad">Removed</span>
+        </div>
+
+        <div class="callout" style="margin-top:14px">
+          <div class="ico">🧠</div>
+          <div>
+            <b>Queue mapping</b>
+            <div style="color:var(--muted);line-height:1.45;margin-top:4px">
+              Triage = Open • Needs Info = Needs More Info • Requirements Queue = Gathering Requirements • Decision-ready = Under Consideration • Delivered = Done
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Prototype only (no real Smartsheet data). Replace placeholders with your published dashboard/report URLs and form links.
+    </div>
+  </div>
+
+  <script>
+    const roleSel = document.getElementById('roleSel');
+    const roleBadge = document.getElementById('roleBadge');
+
+    const roleLabels = {
+      requestor: "Requestor",
+      manager: "Manager",
+      pm: "PM / Doer",
+      steerco: "SteerCo",
+      leadership: "Leadership"
+    };
+
+    function setRole(role){
+      roleBadge.textContent = roleLabels[role] || "Role";
+      roleBadge.className = "badge info";
+      if(role === "pm") roleBadge.className = "badge purple";
+      if(role === "manager") roleBadge.className = "badge info";
+      if(role === "steerco" || role === "leadership") roleBadge.className = "badge info";
+
+      // Show/hide nav groups by role
+      document.querySelectorAll(".navGroup").forEach(g=>{
+        const roles = (g.getAttribute("data-roles") || "").split(" ").filter(Boolean);
+        g.style.display = roles.includes(role) ? "block" : "none";
+      });
+
+      // Default landing per role
+      if(role === "pm") openPage("pm-doer");
+      else if(role === "manager") openPage("manager-portal");
+      else if(role === "steerco" || role === "leadership") openPage("portfolio-insights");
+      else openPage("idea-portal");
+    }
+
+    roleSel.addEventListener("change", e => setRole(e.target.value));
+
+    function openPage(id){
+      // activate page
+      document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+      const page = document.getElementById(id);
+      if(page) page.classList.add("active");
+
+      // activate nav item
+      document.querySelectorAll(".navItem").forEach(i=>i.classList.remove("active"));
+      const nav = document.querySelector('.navItem[data-page="'+id+'"]');
+      if(nav) nav.classList.add("active");
+
+      // scroll
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    function fakeLink(url, label){
+      alert(label + ":\nReplace placeholder with a real Smartsheet link:\n" + url);
+    }
+
+    function showShell(){
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+      document.querySelector('.tab[data-tab="workapp"]').classList.add("active");
+      document.getElementById("shell").style.display = "block";
+      document.getElementById("structure").style.display = "none";
+      document.getElementById("stages").style.display = "none";
+    }
+    function showStructure(){
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+      document.querySelector('.tab[data-tab="structure"]').classList.add("active");
+      document.getElementById("shell").style.display = "none";
+      document.getElementById("structure").style.display = "block";
+      document.getElementById("stages").style.display = "none";
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+    function showStages(){
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+      document.querySelector('.tab[data-tab="stages"]').classList.add("active");
+      document.getElementById("shell").style.display = "none";
+      document.getElementById("structure").style.display = "none";
+      document.getElementById("stages").style.display = "block";
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    // init
+    setRole("requestor");
+  </script>
+</body>
+</html>
