@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Delivered Ideas — Dashboard Mockup</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#111a33;
+      --panel2:#0f1730;
+      --text:#e9ecf5;
+      --muted:#aab3cf;
+      --line:rgba(255,255,255,.10);
+      --accent:#6ee7ff;
+      --accent2:#a78bfa;
+      --good:#34d399;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --shadow: 0 14px 40px rgba(0,0,0,.35);
+      --radius:18px;
+      --radius2:14px;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 18% 8%, rgba(110,231,255,.12), transparent 50%),
+                  radial-gradient(900px 700px at 85% 20%, rgba(167,139,250,.12), transparent 55%),
+                  var(--bg);
+      min-height:100vh;
+    }
+
+    .wrap{max-width:1220px;margin:0 auto;padding:26px 18px 40px;}
+
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:14px;
+    }
+
+    .title{display:flex;flex-direction:column;gap:6px}
+    h1{margin:0;font-size:20px;letter-spacing:.2px}
+    .sub{color:var(--muted);font-size:13px;line-height:1.35}
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+
+    .btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:750;
+      font-size:13px;
+      letter-spacing:.2px;
+      transition:transform .08s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.18)}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(110,231,255,.25), rgba(167,139,250,.22));
+      border-color: rgba(110,231,255,.35);
+    }
+
+    .grid{display:grid;gap:14px;}
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(700px 240px at 20% 0%, rgba(110,231,255,.08), transparent 40%),
+                  radial-gradient(620px 240px at 80% 0%, rgba(167,139,250,.08), transparent 42%);
+      pointer-events:none;
+    }
+    .card > *{position:relative;}
+
+    /* Filters */
+    .filters{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px;
+    }
+
+    .filtersLeft{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .filtersRight{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+    select,input[type="search"]{
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--line);
+      color:var(--text);
+      border-radius:12px;
+      padding:9px 10px;
+      font-size:13px;
+      outline:none;
+      min-width:160px;
+    }
+    input[type="search"]{min-width:240px}
+
+    /* KPIs */
+    .kpis{grid-template-columns: repeat(12, 1fr);}
+    .kpi{grid-column: span 3;padding:16px 16px 14px;display:flex;flex-direction:column;gap:8px;min-height:92px}
+    .kpi .label{color:var(--muted);font-size:12px;font-weight:850;letter-spacing:.25px;text-transform:uppercase}
+    .kpi .value{font-size:26px;font-weight:950;letter-spacing:.2px}
+    .kpi .meta{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;flex-wrap:wrap}
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      font-size:12px;
+      color:var(--muted);
+    }
+    .dot{width:8px;height:8px;border-radius:999px;background:var(--muted)}
+    .dot.good{background:var(--good)}
+    .dot.warn{background:var(--warn)}
+    .dot.bad{background:var(--bad)}
+
+    /* Main row */
+    .row{grid-template-columns: repeat(12, 1fr);align-items:start;}
+    .panel{grid-column: span 6;padding:14px;}
+
+    .panelTop{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .panel h2{margin:0;font-size:14px;letter-spacing:.2px}
+
+    /* Table */
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border-radius:var(--radius2);
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+    }
+    .table thead th{
+      text-align:left;
+      font-size:12px;
+      color:var(--muted);
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      background:rgba(0,0,0,.12);
+      letter-spacing:.2px;
+      position:sticky;
+      top:0;
+    }
+    .table tbody td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      font-size:13px;
+      vertical-align:middle;
+    }
+    .table tbody tr:hover{background:rgba(110,231,255,.06);cursor:pointer}
+    .table tbody tr:last-child td{border-bottom:none}
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      font-size:12px;
+      color:var(--text);
+      white-space:nowrap;
+    }
+    .tag.muted{color:var(--muted)}
+
+    .tiny{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+    /* Outcome chips */
+    .outcomeRow{display:flex;flex-direction:column;gap:10px}
+
+    .outcomeCard{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.03);
+      border-radius:16px;
+      padding:10px;
+    }
+
+    .outcomeHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .outcomeTitle{font-weight:950;line-height:1.2}
+    .outcomeMeta{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.35}
+
+    .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+
+    /* Modal */
+    .modalBackdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.6);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      z-index:50;
+    }
+
+    .modal{
+      width:min(960px, 100%);
+      background:linear-gradient(180deg, rgba(17,26,51,.95), rgba(15,23,48,.95));
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:20px;
+      box-shadow: 0 22px 70px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+
+    .modalHeader{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px 14px 12px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+    }
+
+    .modalHeader h4{margin:0;font-size:15px}
+    .modalHeader .x{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:22px;line-height:1;padding:2px 8px}
+
+    .modalBody{padding:14px;display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+
+    .box{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      border-radius:16px;
+      padding:12px;
+    }
+
+    .box h5{margin:0 0 8px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.25px}
+    .box p{margin:0;color:var(--text);font-size:13px;line-height:1.5}
+
+    .kv{display:grid;grid-template-columns: 170px 1fr;gap:8px;font-size:13px}
+    .kv div:nth-child(odd){color:var(--muted)}
+
+    .modalFooter{
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      padding:12px 14px;
+      border-top:1px solid rgba(255,255,255,.10);
+      flex-wrap:wrap;
+    }
+
+    .note{
+      color:var(--muted);
+      font-size:12px;
+      border-top:1px dashed rgba(255,255,255,.16);
+      margin-top:10px;
+      padding-top:10px;
+    }
+
+    @media (max-width: 980px){
+      .kpi{grid-column: span 6;}
+      .panel{grid-column: span 12;}
+      .modalBody{grid-template-columns:1fr;}
+      input[type="search"]{min-width:160px}
+    }
+
+    @media (max-width: 560px){
+      .kpi{grid-column: span 12;}
+      .actions{justify-content:flex-start}
+      select{min-width:140px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>Delivered Ideas</h1>
+        <div class="sub">Lightweight “wins” view. Filter and browse delivered ideas, see outcomes at a glance, and jump to feedback.</div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="btnPortal">⬅️ Back to Portal</button>
+        <button class="btn primary" id="btnFeedback">⭐ Leave Feedback</button>
+        <button class="btn" id="btnExport">⬇️ Export (placeholder)</button>
+      </div>
+    </header>
+
+    <!-- Filters -->
+    <section class="card" aria-label="Filters">
+      <div class="filters">
+        <div class="filtersLeft">
+          <select id="fRange" aria-label="Date range">
+            <option value="90">Last 90 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="365">Last 12 months</option>
+            <option value="9999">All time</option>
+          </select>
+          <select id="fPortfolio" aria-label="Portfolio">
+            <option value="">All Portfolios</option>
+          </select>
+          <select id="fDept" aria-label="Department">
+            <option value="">All Departments</option>
+          </select>
+          <select id="fKpi" aria-label="Primary KPI">
+            <option value="">All Primary KPIs</option>
+          </select>
+          <input id="q" type="search" placeholder="Search delivered ideas…" aria-label="Search" />
+        </div>
+        <div class="filtersRight">
+          <button class="btn" id="btnReset">Reset</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- KPI tiles -->
+    <section class="grid kpis" style="margin-top:14px" aria-label="KPIs">
+      <div class="card kpi">
+        <div class="label">Delivered (filtered)</div>
+        <div class="value" id="kDelivered">—</div>
+        <div class="meta">
+          <span class="pill"><span class="dot" id="dotDelivered"></span><span id="deliveredLabel">—</span></span>
+          <span class="tiny" id="deliveredNote">—</span>
+        </div>
+      </div>
+
+      <div class="card kpi">
+        <div class="label">Avg Satisfaction</div>
+        <div class="value" id="kSat">—</div>
+        <div class="meta">
+          <span class="pill"><span class="dot" id="dotSat"></span><span id="satLabel">—</span></span>
+          <span class="tiny" id="satNote">—</span>
+        </div>
+      </div>
+
+      <div class="card kpi">
+        <div class="label">Feedback responses</div>
+        <div class="value" id="kResp">—</div>
+        <div class="meta">
+          <span class="pill"><span class="dot" id="dotResp"></span><span id="respLabel">—</span></span>
+          <span class="tiny" id="respNote">—</span>
+        </div>
+      </div>
+
+      <div class="card kpi">
+        <div class="label">Top KPI (count)</div>
+        <div class="value" id="kTopKpi">—</div>
+        <div class="meta">
+          <span class="pill"><span class="dot"></span><span id="topKpiLabel">—</span></span>
+          <span class="tiny" id="topKpiNote">—</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panels -->
+    <section class="grid row" style="margin-top:14px" aria-label="Delivered lists">
+      <!-- Delivered table -->
+      <div class="card panel">
+        <div class="panelTop">
+          <h2>Delivered List</h2>
+          <div class="pill"><span class="dot"></span><span>Click a row for details</span></div>
+        </div>
+        <table class="table" aria-label="Delivered table">
+          <thead>
+            <tr>
+              <th style="width:40%">Idea</th>
+              <th style="width:18%">Portfolio</th>
+              <th style="width:20%">Primary KPI</th>
+              <th style="width:22%">Delivered</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="note">Dashboard tip: show ~10–15 rows here; link out to a report for the full list.</div>
+      </div>
+
+      <!-- Outcomes spotlight -->
+      <div class="card panel">
+        <div class="panelTop">
+          <h2>Outcome Spotlight</h2>
+          <div class="pill"><span class="dot good"></span><span>Latest wins</span></div>
+        </div>
+        <div class="outcomeRow" id="outcomes"></div>
+        <div class="note">Keep the outcome text short (one line). If you need depth, link to release notes.</div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Modal -->
+  <div class="modalBackdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-label="Delivered idea details">
+    <div class="modal">
+      <div class="modalHeader">
+        <div>
+          <h4 id="mTitle">—</h4>
+          <div class="sub" id="mSubtitle">—</div>
+        </div>
+        <button class="x" id="mClose" aria-label="Close">×</button>
+      </div>
+      <div class="modalBody">
+        <div class="box">
+          <h5>Summary</h5>
+          <p id="mSummary">—</p>
+          <div style="height:10px"></div>
+          <h5>Outcome</h5>
+          <p id="mOutcome">—</p>
+          <div style="height:10px"></div>
+          <h5>Feedback snapshot</h5>
+          <p id="mFeedback">—</p>
+        </div>
+        <div class="box">
+          <h5>Key Fields</h5>
+          <div class="kv" id="mKv"></div>
+        </div>
+      </div>
+      <div class="modalFooter">
+        <button class="btn" id="mOpenIdea">Open Idea Record (placeholder)</button>
+        <button class="btn primary" id="mLeaveFeedback">Leave Feedback (placeholder)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------------------------
+    // Sample data (swap with your Smartsheet delivered ideas + feedback rollups)
+    // ---------------------------
+
+    const TODAY = new Date('2026-02-02T00:00:00');
+
+    // Delivered ideas
+    const delivered = [
+      {
+        ideaId:'IDEA-0988',
+        title:'Auto-tag cases with product type',
+        portfolio:'Run',
+        dept:'Customer Service',
+        kpi:'Process Efficiency',
+        deliveredDate:'2026-01-10',
+        summary:'Automatically populate product/type tags based on intake fields.',
+        outcome:'Routing errors down 12%',
+        owner:'Service Ops',
+        release:'R26.01',
+        feedbackAvg:4.1,
+        feedbackCount:2
+      },
+      {
+        ideaId:'IDEA-0979',
+        title:'Add “Primary KPI” to intake to improve prioritization',
+        portfolio:'Transform',
+        dept:'Sales Ops Delivery',
+        kpi:'Productivity',
+        deliveredDate:'2025-12-15',
+        summary:'Standardize Primary KPI selection for all ideas and change requests.',
+        outcome:'Triage time down 18%',
+        owner:'Sales Ops Delivery',
+        release:'R25.12',
+        feedbackAvg:5.0,
+        feedbackCount:2
+      },
+      {
+        ideaId:'IDEA-0965',
+        title:'Quick reference card for supervisors',
+        portfolio:'Explore',
+        dept:'Inside Sales',
+        kpi:'Productivity',
+        deliveredDate:'2025-11-20',
+        summary:'Publish a simple quick reference for routing and capacity troubleshooting.',
+        outcome:'Tickets down 9%',
+        owner:'Enablement',
+        release:'R25.11',
+        feedbackAvg:3.0,
+        feedbackCount:1
+      },
+      {
+        ideaId:'IDEA-0951',
+        title:'New report: SLA risk by queue',
+        portfolio:'Grow',
+        dept:'Customer Service',
+        kpi:'Process Efficiency',
+        deliveredDate:'2026-01-05',
+        summary:'Create a report view that highlights SLA risk and queue aging trends.',
+        outcome:'Escalations reduced in pilot',
+        owner:'Analytics',
+        release:'R26.01',
+        feedbackAvg:4.0,
+        feedbackCount:1
+      },
+      {
+        ideaId:'IDEA-0944',
+        title:'Normalize lead source values',
+        portfolio:'Run',
+        dept:'Marketing',
+        kpi:'AI Enhanced Data Quality',
+        deliveredDate:'2025-10-28',
+        summary:'Standardize lead source values and enforce consistent picklists.',
+        outcome:'Reporting accuracy improved',
+        owner:'CRM Admin',
+        release:'R25.10',
+        feedbackAvg:null,
+        feedbackCount:0
+      }
+    ];
+
+    // ---------------------------
+    // Helpers
+    // ---------------------------
+
+    const $ = (s) => document.querySelector(s);
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+
+    function uniq(arr){ return [...new Set(arr)].filter(Boolean); }
+
+    function fmtDate(iso){
+      const d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+    }
+
+    function withinDays(iso, days){
+      if(days >= 9999) return true;
+      const d = new Date(iso + 'T00:00:00');
+      return (TODAY - d) <= days*24*60*60*1000;
+    }
+
+    function avg(nums){
+      const xs = nums.filter(n => typeof n === 'number');
+      if(!xs.length) return null;
+      return xs.reduce((a,b)=>a+b,0)/xs.length;
+    }
+
+    function dotLevel(v){
+      if(v == null) return null;
+      if(v >= 4.2) return 'good';
+      if(v >= 3.3) return 'warn';
+      return 'bad';
+    }
+
+    function labelFor(v){
+      if(v == null) return 'No data';
+      if(v >= 4.2) return 'Strong';
+      if(v >= 3.3) return 'Mixed';
+      return 'Needs work';
+    }
+
+    function setDot(el, level){
+      el.classList.remove('good','warn','bad');
+      if(level) el.classList.add(level);
+    }
+
+    // ---------------------------
+    // Filters
+    // ---------------------------
+
+    function buildFilters(){
+      for(const p of uniq(delivered.map(x => x.portfolio))){
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        $('#fPortfolio').appendChild(opt);
+      }
+      for(const d of uniq(delivered.map(x => x.dept))){
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        $('#fDept').appendChild(opt);
+      }
+      for(const k of uniq(delivered.map(x => x.kpi))){
+        const opt = document.createElement('option');
+        opt.value = k;
+        opt.textContent = k;
+        $('#fKpi').appendChild(opt);
+      }
+    }
+
+    function matchesFilters(i){
+      const range = parseInt($('#fRange').value, 10);
+      const p = $('#fPortfolio').value;
+      const d = $('#fDept').value;
+      const k = $('#fKpi').value;
+      const q = $('#q').value.trim().toLowerCase();
+
+      if(!withinDays(i.deliveredDate, range)) return false;
+      if(p && i.portfolio !== p) return false;
+      if(d && i.dept !== d) return false;
+      if(k && i.kpi !== k) return false;
+
+      if(q){
+        const hay = `${i.ideaId} ${i.title} ${i.summary} ${i.outcome} ${i.owner} ${i.release} ${i.portfolio} ${i.dept} ${i.kpi}`.toLowerCase();
+        if(!hay.includes(q)) return false;
+      }
+      return true;
+    }
+
+    function getFiltered(){
+      return delivered.filter(matchesFilters)
+        .sort((a,b) => new Date(b.deliveredDate) - new Date(a.deliveredDate));
+    }
+
+    // ---------------------------
+    // KPIs
+    // ---------------------------
+
+    function renderKpis(list){
+      const count = list.length;
+      $('#kDelivered').textContent = String(count);
+      setDot($('#dotDelivered'), count ? 'good' : 'warn');
+      $('#deliveredLabel').textContent = count ? 'Showing delivered' : 'No matches';
+      $('#deliveredNote').textContent = `Filtered by your selections`;
+
+      const sat = avg(list.map(x => x.feedbackAvg));
+      $('#kSat').textContent = sat == null ? '—' : sat.toFixed(1);
+      setDot($('#dotSat'), dotLevel(sat));
+      $('#satLabel').textContent = labelFor(sat);
+      const withSat = list.filter(x => typeof x.feedbackAvg === 'number').length;
+      $('#satNote').textContent = withSat ? `${withSat} idea(s) have ratings` : 'No ratings yet';
+
+      const resp = list.reduce((s,x)=>s+(x.feedbackCount||0),0);
+      $('#kResp').textContent = String(resp);
+      setDot($('#dotResp'), resp ? 'good' : 'warn');
+      $('#respLabel').textContent = resp ? 'Responses collected' : 'No feedback yet';
+      $('#respNote').textContent = 'Click “Leave Feedback” to collect more';
+
+      // Top KPI by count
+      const counts = {};
+      for(const i of list){ counts[i.kpi] = (counts[i.kpi]||0)+1; }
+      const top = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+      if(top){
+        $('#kTopKpi').textContent = top[0];
+        $('#topKpiLabel').textContent = `${top[1]} delivered`;
+        $('#topKpiNote').textContent = 'Most common outcome category';
+      } else {
+        $('#kTopKpi').textContent = '—';
+        $('#topKpiLabel').textContent = '—';
+        $('#topKpiNote').textContent = '';
+      }
+    }
+
+    // ---------------------------
+    // Table + Outcomes
+    // ---------------------------
+
+    function renderTable(list){
+      const body = $('#tbody');
+      body.innerHTML = '';
+
+      const rows = list.slice(0, 15);
+      if(!rows.length){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="4" style="color:var(--muted);padding:14px">No delivered ideas match your filters.</td>`;
+        body.appendChild(tr);
+        return;
+      }
+
+      for(const i of rows){
+        const tr = document.createElement('tr');
+        tr.dataset.id = i.ideaId;
+        tr.innerHTML = `
+          <td>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="font-weight:950;line-height:1.2">${escapeHtml(i.title)}</div>
+              <div class="tiny">${escapeHtml(i.ideaId)} • ${escapeHtml(i.dept)} • <span class="tag muted">${escapeHtml(i.release)}</span></div>
+            </div>
+          </td>
+          <td><span class="tag">${escapeHtml(i.portfolio)}</span></td>
+          <td><span class="tag muted">${escapeHtml(i.kpi)}</span></td>
+          <td><span class="tiny">${fmtDate(i.deliveredDate)}</span></td>
+        `;
+        tr.addEventListener('click', () => openModal(i.ideaId));
+        body.appendChild(tr);
+      }
+    }
+
+    function renderOutcomes(list){
+      const wrap = $('#outcomes');
+      wrap.innerHTML = '';
+
+      const spotlight = list.slice(0, 4);
+      if(!spotlight.length){
+        wrap.innerHTML = `<div style="color:var(--muted);padding:10px">No outcomes to display for the current filters.</div>`;
+        return;
+      }
+
+      for(const i of spotlight){
+        const el = document.createElement('div');
+        el.className = 'outcomeCard';
+        el.innerHTML = `
+          <div class="outcomeHead">
+            <div>
+              <div class="outcomeTitle">${escapeHtml(i.title)}</div>
+              <div class="outcomeMeta">Delivered ${fmtDate(i.deliveredDate)} • ${escapeHtml(i.portfolio)} • ${escapeHtml(i.kpi)}</div>
+            </div>
+            <span class="tag">${escapeHtml(i.ideaId)}</span>
+          </div>
+          <div class="chips">
+            <span class="tag muted">Outcome</span>
+            <span class="tag">${escapeHtml(i.outcome || 'Outcome recorded')}</span>
+            <span class="tag muted">Feedback</span>
+            <span class="tag">${(typeof i.feedbackAvg === 'number') ? i.feedbackAvg.toFixed(1) + ' / 5' : 'No ratings'}</span>
+          </div>
+        `;
+        el.addEventListener('click', () => openModal(i.ideaId));
+        wrap.appendChild(el);
+      }
+    }
+
+    // ---------------------------
+    // Modal
+    // ---------------------------
+
+    function openModal(ideaId){
+      const i = delivered.find(x => x.ideaId === ideaId);
+      if(!i) return;
+
+      $('#mTitle').textContent = `${i.ideaId} — ${i.title}`;
+      $('#mSubtitle').textContent = `${i.portfolio} • ${i.dept} • Delivered ${fmtDate(i.deliveredDate)}`;
+      $('#mSummary').textContent = i.summary || '—';
+      $('#mOutcome').textContent = i.outcome || '—';
+
+      const fb = (typeof i.feedbackAvg === 'number')
+        ? `Avg ${i.feedbackAvg.toFixed(1)} / 5 from ${i.feedbackCount || 0} response(s).`
+        : 'No feedback yet — be the first to rate it.';
+      $('#mFeedback').textContent = fb;
+
+      const kv = [
+        ['Portfolio', i.portfolio],
+        ['Department', i.dept],
+        ['Primary KPI', i.kpi],
+        ['Owner', i.owner || '—'],
+        ['Release', i.release || '—'],
+        ['Delivered', fmtDate(i.deliveredDate)],
+        ['Feedback responses', String(i.feedbackCount || 0)],
+      ];
+
+      $('#mKv').innerHTML = kv.map(([k,v]) => `<div>${escapeHtml(k)}</div><div style="font-weight:950">${escapeHtml(v)}</div>`).join('');
+
+      $('#mOpenIdea').onclick = () => {
+        alert('Placeholder: open the Delivered Idea record (Smartsheet row or report link).');
+      };
+      $('#mLeaveFeedback').onclick = () => {
+        alert('Placeholder: open your Feedback Form prefilled for this idea (if you support prefill).');
+      };
+
+      $('#modalBackdrop').style.display = 'flex';
+    }
+
+    function closeModal(){ $('#modalBackdrop').style.display = 'none'; }
+
+    // ---------------------------
+    // Render
+    // ---------------------------
+
+    function render(){
+      const list = getFiltered();
+      renderKpis(list);
+      renderTable(list);
+      renderOutcomes(list);
+    }
+
+    // ---------------------------
+    // Wire
+    // ---------------------------
+
+    function wire(){
+      ['#fRange','#fPortfolio','#fDept','#fKpi'].forEach(sel => $(sel).addEventListener('change', render));
+      $('#q').addEventListener('input', render);
+
+      $('#btnReset').addEventListener('click', () => {
+        $('#fRange').value = '90';
+        $('#fPortfolio').value = '';
+        $('#fDept').value = '';
+        $('#fKpi').value = '';
+        $('#q').value = '';
+        render();
+      });
+
+      $('#btnFeedback').addEventListener('click', () => {
+        alert('Placeholder: open Feedback Form (Shortcut widget).');
+      });
+
+      $('#btnPortal').addEventListener('click', () => {
+        alert('Placeholder: return to Idea Portal dashboard.');
+      });
+
+      $('#btnExport').addEventListener('click', () => {
+        alert('Placeholder: export delivered list (in Smartsheet, export the delivered report).');
+      });
+
+      $('#mClose').addEventListener('click', closeModal);
+      $('#modalBackdrop').addEventListener('click', (e) => {
+        if(e.target.id === 'modalBackdrop') closeModal();
+      });
+      document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') closeModal();
+      });
+    }
+
+    // ---------------------------
+    // Init
+    // ---------------------------
+
+    buildFilters();
+    render();
+    wire();
+  </script>
+</body>
+</html>
